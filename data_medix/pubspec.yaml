@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  supabase_flutter: ^2.8.4
+  simple_gradient_text: 1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +19,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+  - lib/assets/logo.jpg
