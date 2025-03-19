@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -33,7 +34,13 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: colorsList["backgroundColor"],
-        body: Headtop(toggle :test),
+        body: Column(
+          children: [
+            Headtop(toggle: test),
+            CardList(),
+
+          ],
+        ),
       ),
     );
   }
@@ -156,3 +163,77 @@ class _HeadtopState extends State<Headtop> {
 
 
 //card
+class CardList extends StatefulWidget {
+  const CardList({super.key});
+
+  @override
+  State<CardList> createState() => _CardListState();
+}
+
+class _CardListState extends State<CardList> {
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    bool isweb = width > 700;
+    List<String> data = ['Card 1', 'Card 2', 'Card 3', 'Card 4', 'Card 5', 'Card 6'];
+    double witha = MediaQuery.of(context).size.width;
+    return Expanded(
+      child: Padding(
+        padding:  EdgeInsets.all(width * 0.02),
+        child: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isweb? 5:3, // Number of columns
+          crossAxisSpacing: 15.0, // Spacing between columns
+          mainAxisSpacing: 5.0, 
+          // Spacing between rows
+        ),
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: isweb? EdgeInsets.fromLTRB(0,height*0.06 ,0,height*0.06 ):EdgeInsets.fromLTRB(0,height*0.001 ,0,height*0.001 ),
+            child: Container(
+            decoration: BoxDecoration(
+              border: GradientBoxBorder(gradient: LinearGradient(transform: GradientRotation(-5),colors: [colorsList["praimrytext"]!, colorsList["dividerColor"]!]), width: 2,),
+              borderRadius: BorderRadius.circular(15),
+              
+              color: colorsList["backgroundColor"],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB( 16,16,0,0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                
+                children: [
+                  Text(
+                  data[index],
+                  style: TextStyle(color: colorsList["praimrytext"], fontSize: height*0.025 , fontWeight: FontWeight.bold),
+                  ),
+                  Spacer(flex: 2,),
+                  Text(
+                  data[index],
+                  style: TextStyle(color: colorsList["secondarytext"]),
+                  ),
+                  Text(
+                  data[index],
+                  style: TextStyle(color: colorsList["secondarytext"]),
+                  ),
+                  Spacer(flex: 2,),
+                  Padding( 
+                    padding:  EdgeInsets.only(left: witha*0.1),
+                    child: TextButton(onPressed: (){}, child: Text(
+                    "more...",
+                    style: TextStyle(color: colorsList["powercolor"]),
+                    ),),
+                  )
+                ],
+              ),
+            ),
+            ),
+          );
+        },
+        ),
+      ),
+    );
+}}
