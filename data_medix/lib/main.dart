@@ -16,15 +16,26 @@ Future<void> main() async {
   runApp(MainApp());
 }
 
-Future<List<Map<String, dynamic>>> getdata(String table, String select) async {
-  final response = await supabase.from(table).select();
+String filter = "";
 
+Future<List<Map<String, dynamic>>> getdata(String table, String select) async {
+  final response = filter == ""
+      ? await supabase.from(table).select()
+      : await supabase
+          .from(table)
+          .select()
+          .filter(select, 'ilike', '%$filter%');
   return List<Map<String, dynamic>>.from(response);
 }
 
-final supabase = Supabase.instance.client;
+Map<String, String> data = {
+  "table": "Main Drug INFO",
+  "select": "Scientific Name"
+};
 
-int selected = 0;//TODO make the filttring work you can do this be make the number represent the column name be makeing if selected=num then change filter to list<cloumn name,row name> and then use the filter in the getdata function,
+final supabase = Supabase.instance.client;
+int selected =
+    0; //TODO make the filttring work you can do this be make the number represent the column name be makeing if selected=num then change filter to list<cloumn name,row name> and then use the filter in the getdata function,
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -34,9 +45,25 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  void test() {
+  void themeMode() {
     setState(() {
       toggleDarkMode();
+    });
+  }
+
+  void change() {
+    setState(() {
+      switch (selected) {
+        case 0:
+          data = {"table": "Main Drug INFO", "select": "Scientific Name"};
+          break;
+        case 1:
+          data = {"table": "Main Brand INDEX", "select": "Brand Name"};
+          break;
+        case 2:
+          print(filter);
+          break;
+      }
     });
   }
 
@@ -48,7 +75,7 @@ class _MainAppState extends State<MainApp> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Headtop(toggle: test),
+            Headtop(toggle: themeMode),
             SizedBox(height: 10),
             Text("Discover",
                 style: TextStyle(
@@ -56,10 +83,8 @@ class _MainAppState extends State<MainApp> {
                   color: colorsList["praimrytext"],
                 )),
             SizedBox(height: 10),
-
-            Chosing(),
+            Chosing(change: change),
             SizedBox(height: 10),
-
             CardList(),
           ],
         ),
@@ -127,6 +152,9 @@ class SearchBar extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(bottom: height * 0.01),
               child: TextField(
+                onChanged: (value) {
+                  filter = value;
+                },
                 textAlign: TextAlign.left,
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -177,10 +205,10 @@ class _HeadtopState extends State<Headtop> {
   }
 }
 
-
+//chosing
 class Chosing extends StatefulWidget {
-  const Chosing({super.key});
-
+  const Chosing({super.key, required this.change});
+  final void Function() change;
   @override
   State<Chosing> createState() => _ChosingState();
 }
@@ -192,11 +220,14 @@ class _ChosingState extends State<Chosing> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         TextButton(
-            onPressed: () {setState(() {
-              selected = 0;
-            });},
+            onPressed: () {
+              setState(() {
+                selected = 0;
+                widget.change();
+              });
+            },
             child: Text(
-              "scientific name",
+              "scientific names",
               style: TextStyle(
                   color: selected == 0
                       ? colorsList["praimrytext"]
@@ -208,11 +239,14 @@ class _ChosingState extends State<Chosing> {
                       : MediaQuery.of(context).size.height * 0.018),
             )),
         TextButton(
-            onPressed: () {setState(() {
-              selected = 1;
-            });},
+            onPressed: () {
+              setState(() {
+                selected = 1;
+                widget.change();
+              });
+            },
             child: Text(
-              "Drug class",
+              "Brands",
               style: TextStyle(
                   color: selected == 1
                       ? colorsList["praimrytext"]
@@ -223,9 +257,12 @@ class _ChosingState extends State<Chosing> {
                       : MediaQuery.of(context).size.height * 0.018),
             )),
         TextButton(
-            onPressed: () {setState(() {
-              selected = 2;
-            });},
+            onPressed: () {
+              setState(() {
+                selected = 2;
+                widget.change();
+              });
+            },
             child: Text(
               "Rx/OTC",
               style: TextStyle(
@@ -258,7 +295,7 @@ class _CardListState extends State<CardList> {
     bool isweb = width > 1200;
 
     return FutureBuilder<List<Map<String, dynamic>>>(
-        future: getdata("Main Drug INFO", '''Scientific Name'''),
+        future: getdata(data["table"]!, data["select"]!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator(
@@ -312,7 +349,12 @@ class _CardListState extends State<CardList> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                FadingText(dataList[index]['Scientific Name'],
+                                FadingText(
+                                    data["table"] == "Main Drug INFO"
+                                        ? dataList[index]['Scientific Name']
+                                        : data["table"] == "Main Brand INDEX"
+                                            ? dataList[index]['Brand Name']
+                                            : "",
                                     style: TextStyle(
                                       fontSize: isweb
                                           ? height * 0.022
@@ -324,12 +366,16 @@ class _CardListState extends State<CardList> {
                                   flex: 1,
                                 ),
                                 FadingText(
-                                    md.Document()
-                                        .parseLines(dataList[index]
-                                                ['Drug Class']
-                                            .split('\n'))
-                                        .map((e) => e.textContent)
-                                        .join('\n'),
+                                    data["table"] == "Main Drug INFO"
+                                        ? (md.Document()
+                                            .parseLines(dataList[index]
+                                                    ['Drug Class']
+                                                .split('\n'))
+                                            .map((e) => e.textContent)
+                                            .join('\n'))
+                                        : data["table"] == "Main Brand INDEX"
+                                            ? dataList[index]['Scientific Name']
+                                            : "",
                                     style: TextStyle(
                                       fontSize: isweb
                                           ? height * 0.02
