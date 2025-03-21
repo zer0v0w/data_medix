@@ -24,7 +24,7 @@ Future<List<Map<String, dynamic>>> getdata(String table, String select) async {
 
 final supabase = Supabase.instance.client;
 
-int selected = 0;
+int selected = 0;//TODO make the filttring work you can do this be make the number represent the column name be makeing if selected=num then change filter to list<cloumn name,row name> and then use the filter in the getdata function,
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -202,6 +202,7 @@ class _ChosingState extends State<Chosing> {
                       ? colorsList["praimrytext"]
                       : colorsList["secondarytext"],
                   decoration: selected == 0 ? TextDecoration.underline : null,
+                  decorationColor: colorsList["praimrytext"],
                   fontSize: kIsWeb
                       ? MediaQuery.of(context).size.height * 0.02
                       : MediaQuery.of(context).size.height * 0.018),
