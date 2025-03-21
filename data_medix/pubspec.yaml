@@ -12,6 +12,8 @@ dependencies:
   supabase_flutter: ^2.8.4
   simple_gradient_text: 1.3.0
   gradient_borders: ^1.0.1
+  flutter_svg: ^2.0.17
+  markdown: ^7.3.0
 
 dev_dependencies:
   flutter_test:

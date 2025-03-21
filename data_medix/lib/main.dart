@@ -1,18 +1,30 @@
+import 'package:data_medix/widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gradient_borders/gradient_borders.dart';
+import 'package:markdown/markdown.dart' as md;
 
 Future<void> main() async {
   await Supabase.initialize(
-    url: 'https://aaxnfbigquknldsmhhrb.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFheG5mYmlncXVrbmxkc21oaHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NjUxMDcsImV4cCI6MjA1NzA0MTEwN30.4-yUtxpz8CztBB5_Hg_nwdCzC9RUSNMvMNSuLY-qI9U',
-  );
+      url: 'https://usyqcppobmfjbegbkalb.supabase.co',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeXFjcHBvYm1mamJlZ2JrYWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5NTY3MzAsImV4cCI6MjA1NzUzMjczMH0.hnU2P3S605znSKPBkb96TJvofkE-w06jNUg10j32A-Y');
 
   runApp(MainApp());
 }
+
+Future<List<Map<String, dynamic>>> getdata(String table, String select) async {
+  final response = await supabase.from(table).select();
+
+  return List<Map<String, dynamic>>.from(response);
+}
+
+final supabase = Supabase.instance.client;
+
+int selected = 0;
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -22,23 +34,33 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  void test(){
+  void test() {
     setState(() {
       toggleDarkMode();
     });
   }
-  @override
-  
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: colorsList["backgroundColor"],
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Headtop(toggle: test),
-            CardList(),
+            SizedBox(height: 10),
+            Text("Discover",
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height * 0.04,
+                  color: colorsList["praimrytext"],
+                )),
+            SizedBox(height: 10),
 
+            Chosing(),
+            SizedBox(height: 10),
+
+            CardList(),
           ],
         ),
       ),
@@ -81,19 +103,13 @@ class Logo extends StatelessWidget {
 }
 
 //search bar
-class SearchBar extends StatefulWidget {
+class SearchBar extends StatelessWidget {
   const SearchBar({super.key});
 
-  @override
-  State<SearchBar> createState() => _SearchBarState();
-}
-
-class _SearchBarState extends State<SearchBar> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    bool isweb = width > 800;
 
     return Container(
       width: width * 0.25,
@@ -127,7 +143,7 @@ class _SearchBarState extends State<SearchBar> {
 
 //headtop
 class Headtop extends StatefulWidget {
-  const Headtop({super.key,  required this.toggle});
+  const Headtop({super.key, required this.toggle});
   final void Function() toggle;
   @override
   State<Headtop> createState() => _HeadtopState();
@@ -142,7 +158,7 @@ class _HeadtopState extends State<Headtop> {
         TextButton(
             onPressed: () {
               setState(() {
-               widget.toggle();
+                widget.toggle();
               });
             },
             child: Text(
@@ -162,6 +178,69 @@ class _HeadtopState extends State<Headtop> {
 }
 
 
+class Chosing extends StatefulWidget {
+  const Chosing({super.key});
+
+  @override
+  State<Chosing> createState() => _ChosingState();
+}
+
+class _ChosingState extends State<Chosing> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        TextButton(
+            onPressed: () {setState(() {
+              selected = 0;
+            });},
+            child: Text(
+              "scientific name",
+              style: TextStyle(
+                  color: selected == 0
+                      ? colorsList["praimrytext"]
+                      : colorsList["secondarytext"],
+                  decoration: selected == 0 ? TextDecoration.underline : null,
+                  fontSize: kIsWeb
+                      ? MediaQuery.of(context).size.height * 0.02
+                      : MediaQuery.of(context).size.height * 0.018),
+            )),
+        TextButton(
+            onPressed: () {setState(() {
+              selected = 1;
+            });},
+            child: Text(
+              "Drug class",
+              style: TextStyle(
+                  color: selected == 1
+                      ? colorsList["praimrytext"]
+                      : colorsList["secondarytext"],
+                  decoration: selected == 1 ? TextDecoration.underline : null,
+                  fontSize: kIsWeb
+                      ? MediaQuery.of(context).size.height * 0.02
+                      : MediaQuery.of(context).size.height * 0.018),
+            )),
+        TextButton(
+            onPressed: () {setState(() {
+              selected = 2;
+            });},
+            child: Text(
+              "Rx/OTC",
+              style: TextStyle(
+                  color: selected == 2
+                      ? colorsList["praimrytext"]
+                      : colorsList["secondarytext"],
+                  decoration: selected == 2 ? TextDecoration.underline : null,
+                  fontSize: kIsWeb
+                      ? MediaQuery.of(context).size.height * 0.02
+                      : MediaQuery.of(context).size.height * 0.018),
+            )),
+      ],
+    );
+  }
+}
+
 //card
 class CardList extends StatefulWidget {
   const CardList({super.key});
@@ -175,65 +254,115 @@ class _CardListState extends State<CardList> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    bool isweb = width > 700;
-    List<String> data = ['Card 1', 'Card 2', 'Card 3', 'Card 4', 'Card 5', 'Card 6'];
-    double witha = MediaQuery.of(context).size.width;
-    return Expanded(
-      child: Padding(
-        padding:  EdgeInsets.all(width * 0.02),
-        child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isweb? 5:3, // Number of columns
-          crossAxisSpacing: 15.0, // Spacing between columns
-          mainAxisSpacing: 5.0, 
-          // Spacing between rows
-        ),
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: isweb? EdgeInsets.fromLTRB(0,height*0.06 ,0,height*0.06 ):EdgeInsets.fromLTRB(0,height*0.001 ,0,height*0.001 ),
-            child: Container(
-            decoration: BoxDecoration(
-              border: GradientBoxBorder(gradient: LinearGradient(transform: GradientRotation(-5),colors: [colorsList["praimrytext"]!, colorsList["dividerColor"]!]), width: 2,),
-              borderRadius: BorderRadius.circular(15),
-              
-              color: colorsList["backgroundColor"],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB( 16,16,0,0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                
-                children: [
-                  Text(
-                  data[index],
-                  style: TextStyle(color: colorsList["praimrytext"], fontSize: height*0.025 , fontWeight: FontWeight.bold),
-                  ),
-                  Spacer(flex: 2,),
-                  Text(
-                  data[index],
-                  style: TextStyle(color: colorsList["secondarytext"]),
-                  ),
-                  Text(
-                  data[index],
-                  style: TextStyle(color: colorsList["secondarytext"]),
-                  ),
-                  Spacer(flex: 2,),
-                  Padding( 
-                    padding:  EdgeInsets.only(left: witha*0.1),
-                    child: TextButton(onPressed: (){}, child: Text(
-                    "more...",
-                    style: TextStyle(color: colorsList["powercolor"]),
-                    ),),
-                  )
-                ],
-              ),
-            ),
-            ),
-          );
-        },
-        ),
-      ),
-    );
-}}
+    bool isweb = width > 1200;
+
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: getdata("Main Drug INFO", '''Scientific Name'''),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(
+              color: colorsList["accentColor"],
+            ); // Loading
+          }
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}"); // Handle error
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Text("No data available"); // Handle empty data
+          }
+
+          List<Map<String, dynamic>> dataList = snapshot.data!;
+//card build
+          return Expanded(
+              child: Padding(
+                  padding: EdgeInsets.all(width * 0.02),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isweb ? 5 : 2, // Number of columns
+                      crossAxisSpacing: 5.0, // Spacing between columns
+                      mainAxisSpacing: 5.0,
+                      // Spacing between rows
+                    ),
+                    itemCount: dataList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: isweb
+                            ? EdgeInsets.fromLTRB(
+                                0, height * 0.06, 0, height * 0.06)
+                            : EdgeInsets.fromLTRB(
+                                0, height * 0.001, 0, height * 0.001),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: GradientBoxBorder(
+                              gradient: LinearGradient(
+                                  transform: GradientRotation(-5),
+                                  colors: [
+                                    colorsList["praimrytext"]!,
+                                    colorsList["dividerColor"]!
+                                  ]),
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            color: colorsList["backgroundColor"],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 0, 0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FadingText(dataList[index]['Scientific Name'],
+                                    style: TextStyle(
+                                      fontSize: isweb
+                                          ? height * 0.022
+                                          : height * 0.02,
+                                      color: colorsList["praimrytext"],
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                Spacer(
+                                  flex: 1,
+                                ),
+                                FadingText(
+                                    md.Document()
+                                        .parseLines(dataList[index]
+                                                ['Drug Class']
+                                            .split('\n'))
+                                        .map((e) => e.textContent)
+                                        .join('\n'),
+                                    style: TextStyle(
+                                      fontSize: isweb
+                                          ? height * 0.02
+                                          : height * 0.018,
+                                      color: colorsList["secondarytext"],
+                                      fontWeight: FontWeight.w500,
+                                    )),
+                                Spacer(
+                                  flex: 10,
+                                ),
+                                Row(
+                                  children: [
+                                    Text(dataList[index]['Rx/OTC'] ?? "",
+                                        style: TextStyle(
+                                          fontSize: isweb
+                                              ? height * 0.02
+                                              : height * 0.018,
+                                          color: colorsList["secondarytext"],
+                                          fontWeight: FontWeight.w400,
+                                        )),
+                                    Spacer(),
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: Text("More"),
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )));
+        });
+  }
+}
