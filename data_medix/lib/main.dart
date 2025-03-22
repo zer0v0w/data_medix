@@ -16,16 +16,38 @@ Future<void> main() async {
   runApp(MainApp());
 }
 
-String filter = "";
+final supabase = Supabase.instance.client;
 
+String filter = "";
+List<String> arabicCountries = [
+  "default",
+  "Palestine",
+];
+String country = "default";
 Future<List<Map<String, dynamic>>> getdata(String table, String select) async {
-  final response = filter == ""
-      ? await supabase.from(table).select()
-      : await supabase
-          .from(table)
-          .select()
-          .filter(select, 'ilike', '%$filter%');
-  return List<Map<String, dynamic>>.from(response);
+  if (country != "default") {
+    final response = filter == ""
+        ? await supabase.from("$country Drug Info").select()
+        : await supabase.from("$country Drug Info").select().filter(
+            (switch (data["table"]) {
+              "Main Drug INFO" => 'Product class',
+              "Main Brand INDEX" => 'Brand Name',
+              String() => "",
+              null => "",
+            }),
+            'ilike',
+            '%$filter%');
+
+    return List<Map<String, dynamic>>.from(response);
+  } else {
+    final response = filter == ""
+        ? await supabase.from(table).select()
+        : await supabase
+            .from(table)
+            .select()
+            .filter(select, 'ilike', '%$filter%');
+    return List<Map<String, dynamic>>.from(response);
+  }
 }
 
 Map<String, String> data = {
@@ -33,9 +55,7 @@ Map<String, String> data = {
   "select": "Scientific Name"
 };
 
-final supabase = Supabase.instance.client;
-int selected =
-    0; //TODO make the filttring work you can do this be make the number represent the column name be makeing if selected=num then change filter to list<cloumn name,row name> and then use the filter in the getdata function,
+int selected = 0;
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -73,13 +93,15 @@ class _MainAppState extends State<MainApp> {
       home: Scaffold(
         backgroundColor: colorsList["backgroundColor"],
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Headtop(toggle: themeMode),
+            Headtop(toggle: themeMode, change: change),
             SizedBox(height: 10),
             Text("Discover",
                 style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.height * 0.04,
+                  fontSize: MediaQuery.of(context).size.height * 0.045,
+                  fontWeight: FontWeight.bold,
                   color: colorsList["praimrytext"],
                 )),
             SizedBox(height: 10),
@@ -115,7 +137,8 @@ class Logo extends StatelessWidget {
         GradientText(
           'Data medix',
           style: TextStyle(
-            fontSize: isweb ? height * 0.025 : height * 0.02,
+            fontSize: isweb ? height * 0.03 : height * 0.025,
+            fontWeight: FontWeight.w600,
           ),
           colors: [
             colorsList['praimryColor']!,
@@ -128,16 +151,23 @@ class Logo extends StatelessWidget {
 }
 
 //search bar
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
+class SearchBar extends StatefulWidget {
+  const SearchBar({super.key, required this.change});
+  final void Function() change;
 
+  @override
+  State<SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    bool isweb = width > 800;
 
     return Container(
-      width: width * 0.25,
+      width: isweb ? width * 0.25 : width * 0.2,
       height: height * 0.04,
       decoration: BoxDecoration(
           color: colorsList["dividerColor"],
@@ -150,15 +180,21 @@ class SearchBar extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(bottom: height * 0.01),
+              padding: EdgeInsets.only(bottom: height * 0.02),
               child: TextField(
                 onChanged: (value) {
                   filter = value;
+                  widget.change();
                 },
                 textAlign: TextAlign.left,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'Search',
+                  hintText:
+                      'Search in ${data["table"] == "Main Brand INDEX" ? "Brands" : "Drug Classes"}...',
+                  hintStyle: TextStyle(
+                    fontSize: height * 0.018,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
             ),
@@ -171,8 +207,9 @@ class SearchBar extends StatelessWidget {
 
 //headtop
 class Headtop extends StatefulWidget {
-  const Headtop({super.key, required this.toggle});
+  const Headtop({super.key, required this.toggle, required this.change});
   final void Function() toggle;
+  final void Function() change;
   @override
   State<Headtop> createState() => _HeadtopState();
 }
@@ -180,7 +217,10 @@ class Headtop extends StatefulWidget {
 class _HeadtopState extends State<Headtop> {
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    bool isweb = width > 800;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Logo(),
         TextButton(
@@ -191,14 +231,18 @@ class _HeadtopState extends State<Headtop> {
             },
             child: Text(
               darkMode ? "light" : "dark",
-              style: TextStyle(color: colorsList["praimrytext"]),
+              style: TextStyle(
+                color: colorsList["praimrytext"],
+                fontSize: MediaQuery.of(context).size.height * 0.018,
+                fontWeight: FontWeight.w500,
+              ),
             )),
         Spacer(
-          flex: 1,
+          flex: isweb ? 9 : 1,
         ),
-        SearchBar(),
+        SearchBar(change: widget.change),
         Spacer(
-          flex: 2,
+          flex: 15,
         ),
       ],
     );
@@ -219,6 +263,58 @@ class _ChosingState extends State<Chosing> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        Spacer(
+          flex: 1,
+        ),
+        Container(
+          decoration: BoxDecoration(
+              color: colorsList["frontgroundColor"],
+              borderRadius: BorderRadius.circular(35)),
+          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              style: TextStyle(
+                color: colorsList["praimrytext"],
+                fontSize: kIsWeb
+                    ? MediaQuery.of(context).size.height * 0.022
+                    : MediaQuery.of(context).size.height * 0.02,
+                fontWeight: FontWeight.w500,
+              ),
+              value: null,
+              hint: Text(
+                "Countries",
+                style: TextStyle(
+                  color: colorsList["backgroundColor"],
+                  fontSize: kIsWeb
+                      ? MediaQuery.of(context).size.height * 0.022
+                      : MediaQuery.of(context).size.height * 0.02,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              icon: Icon(
+                Icons.filter_list,
+                color: colorsList["backgroundColor"],
+              ),
+              items: arabicCountries.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(
+                    option,
+                    style: TextStyle(color: colorsList["backgroundColor"]),
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                // Handle selection
+                country = value!;
+                widget.change();
+              },
+            ),
+          ),
+        ),
+        Spacer(
+          flex: 4,
+        ),
         TextButton(
             onPressed: () {
               setState(() {
@@ -235,9 +331,11 @@ class _ChosingState extends State<Chosing> {
                   decoration: selected == 0 ? TextDecoration.underline : null,
                   decorationColor: colorsList["praimrytext"],
                   fontSize: kIsWeb
-                      ? MediaQuery.of(context).size.height * 0.02
-                      : MediaQuery.of(context).size.height * 0.018),
+                      ? MediaQuery.of(context).size.height * 0.022
+                      : MediaQuery.of(context).size.height * 0.02,
+                  fontWeight: FontWeight.w600),
             )),
+        Spacer(flex: 2),
         TextButton(
             onPressed: () {
               setState(() {
@@ -253,9 +351,11 @@ class _ChosingState extends State<Chosing> {
                       : colorsList["secondarytext"],
                   decoration: selected == 1 ? TextDecoration.underline : null,
                   fontSize: kIsWeb
-                      ? MediaQuery.of(context).size.height * 0.02
-                      : MediaQuery.of(context).size.height * 0.018),
+                      ? MediaQuery.of(context).size.height * 0.022
+                      : MediaQuery.of(context).size.height * 0.02,
+                  fontWeight: FontWeight.w600),
             )),
+        Spacer(flex: 2),
         TextButton(
             onPressed: () {
               setState(() {
@@ -271,9 +371,11 @@ class _ChosingState extends State<Chosing> {
                       : colorsList["secondarytext"],
                   decoration: selected == 2 ? TextDecoration.underline : null,
                   fontSize: kIsWeb
-                      ? MediaQuery.of(context).size.height * 0.02
-                      : MediaQuery.of(context).size.height * 0.018),
+                      ? MediaQuery.of(context).size.height * 0.022
+                      : MediaQuery.of(context).size.height * 0.02,
+                  fontWeight: FontWeight.w600),
             )),
+        Spacer(flex: 7),
       ],
     );
   }
@@ -298,8 +400,48 @@ class _CardListState extends State<CardList> {
         future: getdata(data["table"]!, data["select"]!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(
-              color: colorsList["accentColor"],
+            return Expanded(
+              child: Padding(
+                padding:
+                    EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 1200 ? 5 : 2,
+                    mainAxisExtent: MediaQuery.of(context).size.height * 0.25,
+                    crossAxisSpacing: 15.0,
+                    mainAxisSpacing: 15.0,
+                  ),
+                  itemCount: 10, // Number of placeholder cards
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.01,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: GradientBoxBorder(
+                            gradient: LinearGradient(
+                              colors: [
+                                colorsList["praimrytext"]!,
+                                colorsList["dividerColor"]!,
+                              ],
+                            ),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                          color: colorsList["backgroundColor"],
+                        ),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: colorsList["praimrytext"],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ); // Loading
           }
           if (snapshot.hasError) {
@@ -317,8 +459,9 @@ class _CardListState extends State<CardList> {
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: isweb ? 5 : 2, // Number of columns
-                      crossAxisSpacing: 5.0, // Spacing between columns
-                      mainAxisSpacing: 5.0,
+                      mainAxisExtent: height * 0.25,
+                      crossAxisSpacing: 15.0, // Spacing between columns
+                      mainAxisSpacing: 15.0,
                       // Spacing between rows
                     ),
                     itemCount: dataList.length,
@@ -326,7 +469,7 @@ class _CardListState extends State<CardList> {
                       return Padding(
                         padding: isweb
                             ? EdgeInsets.fromLTRB(
-                                0, height * 0.06, 0, height * 0.06)
+                                0, height * 0.03, 0, height * 0.01)
                             : EdgeInsets.fromLTRB(
                                 0, height * 0.001, 0, height * 0.001),
                         child: Container(
@@ -350,15 +493,32 @@ class _CardListState extends State<CardList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 FadingText(
-                                    data["table"] == "Main Drug INFO"
-                                        ? dataList[index]['Scientific Name']
-                                        : data["table"] == "Main Brand INDEX"
-                                            ? dataList[index]['Brand Name']
-                                            : "",
+                                    //main text
+                                    country == "default"
+                                        ? switch (data["table"]) {
+                                            "Main Drug INFO" => dataList[index]
+                                                    ['Scientific Name'] ??
+                                                "",
+                                            "Main Brand INDEX" =>
+                                              dataList[index]['Brand Name'] ??
+                                                  "s",
+                                            String() => "a",
+                                            null => "nothing",
+                                          }
+                                        : switch (data["table"]) {
+                                            "Main Drug INFO" => dataList[index]
+                                                    ['Product class'] ??
+                                                "",
+                                            "Main Brand INDEX" =>
+                                              dataList[index]['Brand Name'] ??
+                                                  "",
+                                            String() => "",
+                                            null => "nothing",
+                                          },
                                     style: TextStyle(
                                       fontSize: isweb
-                                          ? height * 0.022
-                                          : height * 0.02,
+                                          ? height * 0.024
+                                          : height * 0.022,
                                       color: colorsList["praimrytext"],
                                       fontWeight: FontWeight.bold,
                                     )),
@@ -366,20 +526,35 @@ class _CardListState extends State<CardList> {
                                   flex: 1,
                                 ),
                                 FadingText(
-                                    data["table"] == "Main Drug INFO"
-                                        ? (md.Document()
-                                            .parseLines(dataList[index]
-                                                    ['Drug Class']
-                                                .split('\n'))
-                                            .map((e) => e.textContent)
-                                            .join('\n'))
-                                        : data["table"] == "Main Brand INDEX"
-                                            ? dataList[index]['Scientific Name']
-                                            : "",
+                                    //sub text
+                                    country == "default"
+                                        ? switch (data["table"]) {
+                                            "Main Drug INFO" => md.Document()
+                                                .parseLines(dataList[index]
+                                                        ['Drug Class']
+                                                    .split('\n'))
+                                                .map((e) => e.textContent)
+                                                .join('\n'),
+                                            "Main Brand INDEX" =>
+                                              dataList[index]
+                                                      ['Scientific Name'] ??
+                                                  "",
+                                            String() => "",
+                                            null => throw "nothing",
+                                          }
+                                        : switch (data["table"]) {
+                                            "Main Drug INFO" =>
+                                              dataList[index]['API'] ?? "",
+                                            "Main Brand INDEX" =>
+                                              dataList[index]['API'] ??
+                                                  "",
+                                            String() => "",
+                                            null => "nothing",
+                                          },
                                     style: TextStyle(
                                       fontSize: isweb
-                                          ? height * 0.02
-                                          : height * 0.018,
+                                          ? height * 0.022
+                                          : height * 0.02,
                                       color: colorsList["secondarytext"],
                                       fontWeight: FontWeight.w500,
                                     )),
@@ -391,15 +566,22 @@ class _CardListState extends State<CardList> {
                                     Text(dataList[index]['Rx/OTC'] ?? "",
                                         style: TextStyle(
                                           fontSize: isweb
-                                              ? height * 0.02
-                                              : height * 0.018,
+                                              ? height * 0.022
+                                              : height * 0.02,
                                           color: colorsList["secondarytext"],
                                           fontWeight: FontWeight.w400,
                                         )),
                                     Spacer(),
                                     TextButton(
                                       onPressed: () {},
-                                      child: Text("More"),
+                                      child: Text(
+                                        "More",
+                                        style: TextStyle(
+                                          fontSize: height * 0.019,
+                                          fontWeight: FontWeight.w600,
+                                          color: colorsList["praimryColor"],
+                                        ),
+                                      ),
                                     )
                                   ],
                                 )
