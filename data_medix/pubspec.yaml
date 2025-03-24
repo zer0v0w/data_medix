@@ -14,11 +14,16 @@ dependencies:
   gradient_borders: ^1.0.1
   flutter_svg: ^2.0.17
   markdown: ^7.3.0
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  toggle_switch: ^2.3.0
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
 
 flutter:
   uses-material-design: true
