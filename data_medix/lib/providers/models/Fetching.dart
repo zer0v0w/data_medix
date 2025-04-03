@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,7 +13,7 @@ class DataMode extends ChangeNotifier {
   List<String> arabicCountries;
   dynamic selectedData = "";
   List columnL = [];
-    String sele = "Scientific Name";
+  String sele = "Drug Class";
 
   DataMode(
       {required this.showprov,
@@ -41,7 +42,8 @@ class DataMode extends ChangeNotifier {
 
   void setSele(String newValue) {
     sele = newValue;
-    notifyListeners();}
+    notifyListeners();
+  }
 
   void toggleProv(bool off) {
     if (off) {
@@ -83,27 +85,38 @@ class DataMode extends ChangeNotifier {
     final supabase = Supabase.instance.client;
 
     try {
-      final response =
-          await supabase.from(country != "default"? "$country Drug Info":"Main Drug INFO").select().limit(1); // Fetch 1 row
+      final response = await supabase
+          .from(country != "default" ? "$country Drug Info" : tableName)
+          .select()
+          .limit(1);
 
       if (response.isNotEmpty) {
         Map<String, dynamic> firstRow = response.first;
-        columnL = firstRow.keys.toList();
-        columnL.remove("code");
-        columnL.remove("Code");
-        columnL.remove("PS CODE");
-        columnL.remove("id");
-        columnL.remove("Ps Code");
-                columnL.remove("Rx/OTC");
+        List newColumnL = firstRow.keys.toList();
+        newColumnL.remove("code");
+        newColumnL.remove("Code");
+        newColumnL.remove("PS CODE");
+        newColumnL.remove("id");
+        newColumnL.remove("Ps Code");
+        newColumnL.remove("Rx/OTC");
+        newColumnL.remove(country != "default" ? "Brand Name":"Drug Class");
 
         print(tableName);
-        columnL.sort();
+        newColumnL.sort();
+        newColumnL.insert(0, country != "default" ? "Brand Name":"Drug Class");
+
+        // Only notify if the column list has changed
+        if (!listEquals(columnL, newColumnL)) {
+          columnL = newColumnL;
+          notifyListeners();
+        }
+
         return columnL;
       }
     } catch (error) {
       print('Error fetching column names: $error');
     }
-            return columnL;
 
+    return [];
   }
 }
