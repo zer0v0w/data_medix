@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,11 +10,13 @@ class AuthF extends ChangeNotifier {
   String? username;
   Session? session;
   User? user;
+  Map<String, dynamic>? userData;
 
   String? errorMessage;
 
   Future<void> signUp(String email1, String password1, String firstName,
       String lastName, String profession, String specialty) async {
+        username = "$firstName $lastName";
     try {
     errorMessage = null;
       final AuthResponse res = await supabase.auth.signUp(
@@ -45,13 +49,13 @@ class AuthF extends ChangeNotifier {
       final AuthResponse res = await supabase.auth.signInWithPassword(
         email: email1,
         password: password1,
+        
       );
 
-    
-
-      session = res.session;
-      user = res.user;
-  
+    userData = await supabase.from("Profiles").select().eq("id", res.user!.id).single();
+    username = "${userData!['First Name']} ${userData!['Last Name']}";
+    session = res.session;
+    user = res.user;
     } catch (e) {
       errorMessage = e.toString();
     }

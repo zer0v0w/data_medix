@@ -118,13 +118,20 @@ class _SearchBarState extends ConsumerState<SearchBar> {
       });
     } else {
       showSuggestions = true;
-      List<Map<String, dynamic>> filteredData =
-      await ref.read(dataF).getsrearch(ref.watch(dataF).data["table"]! , ref.watch(dataF).data["select"]!);
-      filteredData = filteredData.where((item) => 
-        item[ref.watch(dataF).data["select"]]?.toString().toLowerCase().contains(query.toLowerCase()) ?? false
-      ).toList();
-      print(filteredData);
-      setState(() {//MAKE A WAY TO GET JUST WHAT U WANT FROM THE MAP
+      List<Map<String, dynamic>> filteredData = await ref
+          .read(dataF)
+          .getsrearch(ref.watch(dataF).data["table"]!,
+              ref.watch(dataF).data["select"]!);
+      filteredData = filteredData
+          .where((item) =>
+              item[ref.watch(dataF).data["select"]]
+                  ?.toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ??
+              false)
+          .toList();
+      setState(() {
+        //MAKE A WAY TO GET JUST WHAT U WANT FROM THE MAP
         suggestions = filteredData.take(5).toList();
         // Limit to 5 suggestions
       });
@@ -137,19 +144,19 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     double height = MediaQuery.of(context).size.height;
     bool isweb = width > 800;
     filter = ref.watch(dataF).filter;
-        showprov = ref.watch(dataF).showprov;
-
+    showprov = ref.watch(dataF).showprov;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        SizedBox(
           width: isweb ? width * 0.25 : width * 0.8,
           child: Row(
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.search, color: ref.watch(colorF).colorsList["frontgroundColor"]),
+                child: Icon(Icons.search,
+                    color: ref.watch(colorF).colorsList["frontgroundColor"]),
               ),
               Expanded(
                 child: TextField(
@@ -162,7 +169,7 @@ class _SearchBarState extends ConsumerState<SearchBar> {
                     alignLabelWithHint: true,
                     border: InputBorder.none,
                     hintText:
-                        'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default"? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
+                        'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default" ? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
                     hintStyle: GoogleFonts.roboto(
                       fontSize: height * 0.02,
                       fontWeight: FontWeight.w500,
@@ -172,13 +179,14 @@ class _SearchBarState extends ConsumerState<SearchBar> {
                   style: GoogleFonts.roboto(
                     fontSize: height * 0.02,
                     fontWeight: FontWeight.w500,
-                    color:  ref.watch(colorF).colorsList["praimrytext"],
+                    color: ref.watch(colorF).colorsList["praimrytext"],
                   ),
                 ),
               ),
               if (ref.watch(dataF).filter.isNotEmpty)
                 IconButton(
-                  icon: Icon(Icons.clear, color: ref.watch(colorF).colorsList["secondaryColor"]),
+                  icon: Icon(Icons.clear,
+                      color: ref.watch(colorF).colorsList["secondaryColor"]),
                   onPressed: () {
                     setState(() {
                       _controller.clear();

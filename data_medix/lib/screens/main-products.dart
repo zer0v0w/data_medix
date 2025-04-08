@@ -11,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:markdown/markdown.dart' as md;
-import 'package:data_medix/assets/widget.dart' as widg;
 
 //the topbar
 class Headtop extends ConsumerStatefulWidget {
@@ -50,8 +49,6 @@ class _HeadtopState extends ConsumerState<Headtop>
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    bool isweb = width > 800;
     colorsList = ref.watch(colorF).colorsList;
     darkMode = ref.watch(colorF).darkMode;
     return Row(

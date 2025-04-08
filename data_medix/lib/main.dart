@@ -14,13 +14,12 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MainApp()));
 }
 
-
 // main app viwer
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context ,ref) {
+  Widget build(BuildContext context, ref) {
     return MaterialApp(
       theme: ThemeData(
         // Use GoogleFonts for a modern, clean font style.
@@ -31,11 +30,14 @@ class MainApp extends ConsumerWidget {
           backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
           body: Stack(children: [
             Container(
-              color: const Color.fromARGB(16, 0, 0, 0), // Add semi-transparent black overlay
+              color: const Color.fromARGB(
+                  16, 0, 0, 0), // Add semi-transparent black overlay
               width: double.infinity,
               height: double.infinity,
             ),
-            MAINPAGE(colorsList: ref.watch(colorF).colorsList,)
+            MAINPAGE(
+              colorsList: ref.watch(colorF).colorsList,
+            )
           ]),
         ),
       ),
@@ -43,10 +45,9 @@ class MainApp extends ConsumerWidget {
   }
 }
 
-
 //page viwer
 class MAINPAGE extends StatelessWidget {
-     final Map <String,Color> colorsList;
+  final Map<String, Color> colorsList;
 
   const MAINPAGE({super.key, required this.colorsList});
 
@@ -57,34 +58,32 @@ class MAINPAGE extends StatelessWidget {
       child: Stack(
         children: [
           Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Headtop(),
-          const SizedBox(height: 10),
-          Text(
-                    "Discover",
-                    style: GoogleFonts.roboto(
-          fontSize: MediaQuery.of(context).size.height * 0.06,
-          fontWeight: FontWeight.bold,
-          color: colorsList["praimrytext"],
-                    ),
-          ),
-          Chosing(),
-          Divider(),
-          Expanded(child: CardList()),
-        ],
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Headtop(),
+              const SizedBox(height: 10),
+              Text(
+                "Discover",
+                style: GoogleFonts.roboto(
+                  fontSize: MediaQuery.of(context).size.height * 0.06,
+                  fontWeight: FontWeight.bold,
+                  color: colorsList["praimrytext"],
+                ),
+              ),
+              Chosing(),
+              Divider(),
+              Expanded(child: CardList()),
+            ],
           ),
           Positioned(
-        left: MediaQuery.of(context).size.width * 0.39,
-        right: 0,
-        top: MediaQuery.of(context).size.height * 0.02,
-        child: widg.SearchBar(),
+            left: MediaQuery.of(context).size.width * 0.39,
+            right: 0,
+            top: MediaQuery.of(context).size.height * 0.02,
+            child: widg.SearchBar(),
           ),
-      ],
-    ),
+        ],
+      ),
     );
-    
-    
   }
 }

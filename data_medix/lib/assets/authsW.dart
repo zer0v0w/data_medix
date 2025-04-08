@@ -28,7 +28,7 @@ class AccountWidget extends ConsumerWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   if (ref.watch(fetchF).username == null) {
                     showDialog(
                       context: context,
@@ -68,9 +68,22 @@ class AccountWidget extends ConsumerWidget {
                       );
                       },
                     );
-                  } else {
-                    ref.read(fetchF).signOut();
-                  }
+                    } else {
+                    final contextLocal = context;
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => Center(
+                      child: CircularProgressIndicator(
+                        color: ref.watch(colorF).colorsList["secondaryColor"],
+                      ),
+                      ),
+                    );
+                    await ref.read(fetchF).signOut();
+                    if (contextLocal.mounted) {
+                      Navigator.pop(contextLocal);
+                    }
+                    }
                 },
                 child: Text(
                   ref.watch(fetchF).username != null ? "sign-out" : "login",

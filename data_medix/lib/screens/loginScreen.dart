@@ -23,6 +23,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String profession = "";
   String specialty = "";
   bool _obscureText = true;
+  bool _isLoading = false;
 
   Future<void> _geterror() async {
     try {
@@ -42,8 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       .trim()
                       .replaceAll("errorCode:", "")
                       .replaceAll("_", " ")
-                      .replaceAll(")", "") ??
-                  '')),
+                      .replaceAll(")", "") )),
         );
       }
     } catch (e) {
@@ -347,14 +347,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 obscureText: _obscureText,
                 validator: (value) {
                   if (value?.isEmpty ?? true) return 'Please enter password';
-                  if (value!.length < 8)
-                    return 'Password must be at least 8 characters';
-                  if (!value.contains(RegExp(r'[A-Z]')))
-                    return 'Include uppercase letter';
-                  if (!value.contains(RegExp(r'[0-9]')))
-                    return 'Include number';
-                  if (!value.contains(RegExp(r'[-!_@#$%^&*(),.?":{}|<>]')))
-                    return 'Include special character';
                   return null;
                 },
               ),
@@ -393,39 +385,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
               const SizedBox(height: 32),
-              ElevatedButton(
+                ElevatedButton(
                 style: TextButton.styleFrom(
                   backgroundColor:
-                      ref.watch(colorF).colorsList["frontgroundColor"],
+                    ref.watch(colorF).colorsList["frontgroundColor"],
                   foregroundColor:
-                      ref.watch(colorF).colorsList["secondarytext"],
+                    ref.watch(colorF).colorsList["secondarytext"],
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    if (isLogin) {
-                      ref.read(fetchF).signin(
-                          _emailController.text, _passwordController.text);
-                      _geterror();
-                    } else {
-                      ref.read(fetchF).signUp(
-                          _emailController.text,
-                          _passwordController.text,
-                          _firstNameController.text,
-                          _lastNameController.text,
-                          profession,
-                          specialty);
-                      _geterror();
-                    }
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  if (isLogin) {
+                    await ref.read(fetchF).signin(
+                      _emailController.text, _passwordController.text);
+                    await _geterror();
+                  } else {
+                    await ref.read(fetchF).signUp(
+                      _emailController.text,
+                      _passwordController.text,
+                      _firstNameController.text,
+                      _lastNameController.text,
+                      profession,
+                      specialty);
+                    await _geterror();
+                  }
+                  setState(() {
+                    _isLoading = false;
+                  });
                   }
                 },
-                child: Text(
-                  isLogin ? 'Sign In' : 'Sign Up',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    color: ref.watch(colorF).colorsList["backgroundColor"],
-                  ),
-                ),
+                child: _isLoading
+                  ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: ref.watch(colorF).colorsList["backgroundColor"],
+                    ),
+                    )
+                  : Text(
+                    isLogin ? 'Sign In' : 'Sign Up',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: ref.watch(colorF).colorsList["backgroundColor"],
+                    ),
+                    ),
               ),
               Text(
                   ref
