@@ -37,7 +37,7 @@ void toggleDarkMode(){
   "secondaryColor": Color.fromRGBO(200, 25, 200, 1),
   "accentColor": Color.fromRGBO(70, 140, 255, 1),
   "backgroundColor": Color.fromRGBO(255, 255, 255, 1),
-  "praimrytext": Color.fromRGBO(20, 20, 20, 1),
+  "praimrytext": Color.fromRGBO(20, 20, 20, 1), 
   "secondarytext": Color.fromRGBO(117, 117, 117, 1),
   "powercolor":Color.fromRGBO(50, 0, 255, 1),
   "dividerColor":Color.fromRGBO(210, 210, 210, 1),

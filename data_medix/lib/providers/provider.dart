@@ -1,5 +1,6 @@
 import 'package:data_medix/providers/models/Fetching.dart';
-import 'package:data_medix/providers/theme.dart';
+import 'package:data_medix/providers/models/authM.dart';
+import 'package:data_medix/providers/models/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
@@ -14,4 +15,9 @@ final dataF = ChangeNotifierProvider<DataMode>((ref) {
 final colorF = ChangeNotifierProvider<ColorD>((ref) {
 
   return ColorD() ;
+});
+
+
+final fetchF = ChangeNotifierProvider<AuthF>((ref) {
+  return AuthF() ;
 });

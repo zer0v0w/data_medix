@@ -26,9 +26,18 @@ class MainApp extends ConsumerWidget {
         // Use GoogleFonts for a modern, clean font style.
         textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
       ),
-      home: Scaffold(
-        backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
-        body: MAINPAGE(colorsList: ref.watch(colorF).colorsList,),
+      home: SizedBox.expand(
+        child: Scaffold(
+          backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
+          body: Stack(children: [
+            Container(
+              color: const Color.fromARGB(16, 0, 0, 0), // Add semi-transparent black overlay
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            MAINPAGE(colorsList: ref.watch(colorF).colorsList,)
+          ]),
+        ),
       ),
     );
   }
@@ -43,37 +52,39 @@ class MAINPAGE extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Headtop(),
-                SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    "Discover    ",
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Headtop(),
+          const SizedBox(height: 10),
+          Text(
+                    "Discover",
                     style: GoogleFonts.roboto(
-                      fontSize: MediaQuery.of(context).size.height * 0.06,
-                      fontWeight: FontWeight.bold,
-                      color: colorsList["praimrytext"],
+          fontSize: MediaQuery.of(context).size.height * 0.06,
+          fontWeight: FontWeight.bold,
+          color: colorsList["praimrytext"],
                     ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Chosing( ),
-                SizedBox(height: 10),
-                Expanded(child: CardList()),
-              ],
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child:widg.SearchBar() ,
-              ),
-            ),
-          ],
-        );
+          ),
+          Chosing(),
+          Divider(),
+          Expanded(child: CardList()),
+        ],
+          ),
+          Positioned(
+        left: MediaQuery.of(context).size.width * 0.39,
+        right: 0,
+        top: MediaQuery.of(context).size.height * 0.02,
+        child: widg.SearchBar(),
+          ),
+      ],
+    ),
+    );
+    
+    
   }
 }

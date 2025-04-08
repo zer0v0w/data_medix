@@ -34,6 +34,17 @@ class DataMode extends ChangeNotifier {
         .limit(20);
     return data;
   }
+  Future<List<Map<String, dynamic>>> getsrearch(
+      String table, String select) async {
+    List<Map<String, dynamic>> data = await supabase
+        .from(country == "default" || selected != 1
+            ? table
+            : "$country Drug Info")
+        .select()
+        .filter(select, "ilike", '%$filter%')
+        .limit(20);
+    return data;
+  }
 
   void flitering(String s) {
     filter = s;
@@ -74,7 +85,6 @@ class DataMode extends ChangeNotifier {
         break; //class drug
       default:
     }
-    print(data);
     showprov = false;
     country = "default";
     notifyListeners();
@@ -101,7 +111,6 @@ class DataMode extends ChangeNotifier {
         newColumnL.remove("Rx/OTC");
         newColumnL.remove(country != "default" ? "Brand Name":"Drug Class");
 
-        print(tableName);
         newColumnL.sort();
         newColumnL.insert(0, country != "default" ? "Brand Name":"Drug Class");
 
@@ -114,7 +123,7 @@ class DataMode extends ChangeNotifier {
         return columnL;
       }
     } catch (error) {
-      print('Error fetching column names: $error');
+      //
     }
 
     return [];

@@ -1,11 +1,8 @@
-
 import 'package:data_medix/providers/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-
-
 
 //fading text
 class FadingText extends StatelessWidget {
@@ -49,7 +46,7 @@ class Logo extends ConsumerWidget {
   const Logo({super.key});
 
   @override
-  Widget build(BuildContext context , ref) {
+  Widget build(BuildContext context, ref) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool isweb = width > 800;
@@ -58,17 +55,18 @@ class Logo extends ConsumerWidget {
       children: [
         Container(
           margin: EdgeInsets.fromLTRB(
-              isweb ? width * 0.01 : width * 0.03, height * 0.012, 0, 0),
-          width: isweb ? width * 0.034 : width * 0.08,
-          height: height * 0.07,
+              isweb ? width * 0.01 : 0, height * 0.01, 0, 0),
+          width: isweb ? width * 0.035 : width * 0.06,
+          height: height * 0.06,
           child: Image.asset('lib/assets/logo.jpg'),
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(width*0.045,height*0.03,0,0),
+          padding: EdgeInsets.fromLTRB(
+              isweb ? width * 0.045 : width * 0.06, height * 0.03, 0, 0),
           child: GradientText(
             'Data medix',
             style: GoogleFonts.roboto(
-              fontSize: isweb ? height * 0.03 : height * 0.025,
+              fontSize: isweb ? height * 0.025 : height * 0.02,
               fontWeight: FontWeight.w600,
             ),
             colors: [
@@ -82,11 +80,6 @@ class Logo extends ConsumerWidget {
   }
 }
 
-
-
-
-
-
 //@NOTE: the search bar
 class SearchBar extends ConsumerStatefulWidget {
   const SearchBar({super.key});
@@ -97,8 +90,8 @@ class SearchBar extends ConsumerStatefulWidget {
 
 class _SearchBarState extends ConsumerState<SearchBar> {
   String filter = "";
-    Map<String,String> data ={"":""};
-    bool showprov = false;
+  Map<String, String> data = {"": ""};
+  bool showprov = false;
   @override
   void initState() {
     super.initState();
@@ -106,6 +99,7 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     data = ref.read(dataF).data;
     showprov = ref.read(dataF).showprov;
   }
+
   final TextEditingController _controller = TextEditingController();
   List<Map<String, dynamic>> suggestions = [];
   bool showSuggestions = false;
@@ -115,16 +109,26 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     super.dispose();
   }
 
-  void updateSuggestions(String query) async {//
+  void updateSuggestions(String query) async {
+    //
     if (query.isEmpty) {
       setState(() {
         suggestions = [];
         showSuggestions = false;
       });
-      return;
+    } else {
+      showSuggestions = true;
+      List<Map<String, dynamic>> filteredData =
+      await ref.read(dataF).getsrearch(ref.watch(dataF).data["table"]! , ref.watch(dataF).data["select"]!);
+      filteredData = filteredData.where((item) => 
+        item[ref.watch(dataF).data["select"]]?.toString().toLowerCase().contains(query.toLowerCase()) ?? false
+      ).toList();
+      print(filteredData);
+      setState(() {//MAKE A WAY TO GET JUST WHAT U WANT FROM THE MAP
+        suggestions = filteredData.take(5).toList();
+        // Limit to 5 suggestions
+      });
     }
-
-
   }
 
   @override
@@ -132,59 +136,53 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool isweb = width > 800;
+    filter = ref.watch(dataF).filter;
+        showprov = ref.watch(dataF).showprov;
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+        Container(
           width: isweb ? width * 0.25 : width * 0.8,
-          height: height * 0.05,
-          decoration: BoxDecoration(
-            color: ref.watch(colorF).colorsList["dividerColor"],
-            borderRadius: BorderRadius.circular(35),
-          ),
           child: Row(
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.search, color: Colors.black),
+                child: Icon(Icons.search, color: ref.watch(colorF).colorsList["frontgroundColor"]),
               ),
               Expanded(
-                child: Transform.translate(
-                  offset: Offset(0, height * -0.001),
-                  child: TextField(
-                    controller: _controller,
-                    onChanged: (value) {
-                      ref.read(dataF).flitering(value);
-                      updateSuggestions(value); // Update suggestions
-                    },
-                    decoration: InputDecoration(
-                      alignLabelWithHint: true,
-                      border: InputBorder.none,
-                      hintText:
-                          'Search in ${data["table"] == "Main Brand INDEX" ? (showprov ? 'dsiply distributor' : "Brand Name") : data["table"] == "Main Drug INFO" ? "Scientific Names" : "Drug Classes"}...',
-                      hintStyle: GoogleFonts.roboto(
-                        fontSize: height * 0.02,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    style: GoogleFonts.roboto(
+                child: TextField(
+                  controller: _controller,
+                  onChanged: (value) {
+                    ref.read(dataF).flitering(value);
+                    updateSuggestions(value); // Update suggestions
+                  },
+                  decoration: InputDecoration(
+                    alignLabelWithHint: true,
+                    border: InputBorder.none,
+                    hintText:
+                        'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default"? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
+                    hintStyle: GoogleFonts.roboto(
                       fontSize: height * 0.02,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: ref.watch(colorF).colorsList["secondarytext"],
                     ),
+                  ),
+                  style: GoogleFonts.roboto(
+                    fontSize: height * 0.02,
+                    fontWeight: FontWeight.w500,
+                    color:  ref.watch(colorF).colorsList["praimrytext"],
                   ),
                 ),
               ),
-              if (filter.isNotEmpty)
+              if (ref.watch(dataF).filter.isNotEmpty)
                 IconButton(
-                  icon: Icon(Icons.clear, color: Colors.black),
+                  icon: Icon(Icons.clear, color: ref.watch(colorF).colorsList["secondaryColor"]),
                   onPressed: () {
                     setState(() {
                       _controller.clear();
-                      filter = "";
+                      ref.read(dataF).flitering("");
                       suggestions = []; // Clear suggestions
                       showSuggestions = false;
                     });
@@ -227,7 +225,9 @@ class _SearchBarState extends ConsumerState<SearchBar> {
                     setState(() {
                       _controller.text =
                           suggestions[index][data["select"]] ?? "";
-                      filter = suggestions[index][data["select"]] ?? "";
+                      ref
+                          .read(dataF)
+                          .flitering(suggestions[index][data["select"]] ?? "");
                       suggestions = []; // Clear suggestions after selection
                       showSuggestions = false;
                     });
