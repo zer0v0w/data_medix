@@ -51,11 +51,23 @@ class _HeadtopState extends ConsumerState<Headtop>
   Widget build(BuildContext context) {
     colorsList = ref.watch(colorF).colorsList;
     darkMode = ref.watch(colorF).darkMode;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    bool isWeb = width > 800;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+      horizontal: isWeb ? width * 0.02 : width * 0.05,
+      vertical: height * 0.01
+      ),
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Logo(),
-        GestureDetector(
+        Row(
+        children: [
+          Logo(),
+          SizedBox(width: isWeb ? width * 0.02 : width * 0.03),
+          GestureDetector(
           onTapDown: (_) {
             _scaleController.reverse();
             HapticFeedback.selectionClick();
@@ -64,21 +76,44 @@ class _HeadtopState extends ConsumerState<Headtop>
             _scaleController.forward();
             ref.read(colorF).toggleDarkMode();
           },
-          child: ScaleTransition(
+          child: Container(
+            padding: EdgeInsets.symmetric(
+            horizontal: isWeb ? width * 0.01 : width * 0.03,
+            vertical: height * 0.008
+            ),
+            decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: colorsList["backgroundColor"],
+            border: Border.all(color: colorsList["praimrytext"]!.withOpacity(0.2))
+            ),
+            child: ScaleTransition(
             scale: _scaleAnimation,
-            child: Text(
-              darkMode ? "light" : "dark",
-              style: GoogleFonts.roboto(
+            child: Row(
+              children: [
+              Icon(
+                darkMode ? Icons.light_mode : Icons.dark_mode,
                 color: colorsList["praimrytext"],
-                fontSize: MediaQuery.of(context).size.height * 0.018,
-                fontWeight: FontWeight.w500,
+                size: isWeb ? height * 0.02 : height * 0.018,
               ),
+              SizedBox(width: isWeb ? width * 0.005 : width * 0.02),
+              if (isWeb) Text(
+                darkMode ? "Light Mode" : "Dark Mode",
+                style: GoogleFonts.roboto(
+                color: colorsList["praimrytext"],
+                fontSize: height * 0.018,
+                fontWeight: FontWeight.w500,
+                ),
+              ),
+              ],
+            ),
             ),
           ),
+          ),
+        ],
         ),
-        Spacer(flex: 1),
         AccountWidget(),
       ],
+      ),
     );
   }
 }
@@ -125,7 +160,7 @@ class _ChosingState extends ConsumerState<Chosing> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: MediaQuery.of(context).size.width * 0.025),
+            SizedBox(width: isweb? MediaQuery.of(context).size.width * 0.025:MediaQuery.of(context).size.width * 0.035),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -287,28 +322,34 @@ class _ChosingState extends ConsumerState<Chosing> {
                   if (country != "default")
                     Divider(color: colorsList["frontgroundColor"]),
                   if (country != "default")
-                    Container(
+                    GestureDetector(
+                      onTap: () {
+                      ref.read(dataF).toggleProv(false);
+                      print(ref.watch(dataF).showprov);
+                      HapticFeedback.mediumImpact();
+                      },
+                      child: Container(
                       height: isweb ? height * 0.05 : height * 0.04,
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
                         color: showprov
-                            ? colorsList["praimryColor"]
-                            : colorsList["secondarytext"],
+                          ? colorsList["praimryColor"]
+                          : colorsList["secondarytext"],
                       ),
-                      child: TextButton(
-                        onPressed: () {
-                          ref.read(dataF).toggleProv(false);
-                          HapticFeedback.mediumImpact();
-                        },
-                        child: Text(
-                          "Search by Distributors",
-                          style: GoogleFonts.roboto(
-                            color: colorsList["backgroundColor"],
-                            fontWeight: FontWeight.w600,
-                            fontSize: height * 0.015,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(
+                            "Search by Distributors", 
+                            style: GoogleFonts.roboto(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: isweb ? height * 0.015 : height * 0.015,
+                            ),
                           ),
                         ),
+                      ),
                       ),
                     ),
                   if (country != "default")
@@ -521,7 +562,7 @@ class _CardState extends ConsumerState<Card>
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: isweb ? 5 : 2,
-              mainAxisExtent: isweb ? height / 4 : height / 8,
+              mainAxisExtent: isweb ? height / 4 : height / 6,
               crossAxisSpacing: 15.0,
               mainAxisSpacing: 15.0,
             ),

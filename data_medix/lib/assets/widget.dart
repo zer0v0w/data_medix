@@ -147,103 +147,132 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     showprov = ref.watch(dataF).showprov;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: isweb ? width * 0.25 : width * 0.8,
-          child: Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.search,
-                    color: ref.watch(colorF).colorsList["frontgroundColor"]),
-              ),
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  onChanged: (value) {
-                    ref.read(dataF).flitering(value);
-                    updateSuggestions(value); // Update suggestions
-                  },
-                  decoration: InputDecoration(
-                    alignLabelWithHint: true,
-                    border: InputBorder.none,
-                    hintText:
-                        'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default" ? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
-                    hintStyle: GoogleFonts.roboto(
-                      fontSize: height * 0.02,
-                      fontWeight: FontWeight.w500,
-                      color: ref.watch(colorF).colorsList["secondarytext"],
-                    ),
-                  ),
-                  style: GoogleFonts.roboto(
-                    fontSize: height * 0.02,
-                    fontWeight: FontWeight.w500,
-                    color: ref.watch(colorF).colorsList["praimrytext"],
-                  ),
-                ),
-              ),
-              if (ref.watch(dataF).filter.isNotEmpty)
-                IconButton(
-                  icon: Icon(Icons.clear,
-                      color: ref.watch(colorF).colorsList["secondaryColor"]),
-                  onPressed: () {
-                    setState(() {
-                      _controller.clear();
-                      ref.read(dataF).flitering("");
-                      suggestions = []; // Clear suggestions
-                      showSuggestions = false;
-                    });
-                  },
-                ),
-            ],
+      SizedBox(
+        width: isweb ? width * 0.25 : width * 0.6,
+        child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          IconButton(
+          icon: Icon(Icons.search,
+            color: ref.watch(colorF).colorsList["frontgroundColor"]),
+          onPressed: () {
+            setState(() {
+            showSuggestions = !showSuggestions;
+            if (!showSuggestions) {
+              _controller.clear();
+              ref.read(dataF).flitering("");
+              suggestions = [];
+            }
+            });
+          },
           ),
+          if (showSuggestions)
+          Expanded(
+            child: TextField(
+            controller: _controller,
+            onChanged: (value) {
+              ref.read(dataF).flitering(value);
+              updateSuggestions(value);
+            },
+            decoration: InputDecoration(
+              alignLabelWithHint: true,
+              border: InputBorder.none,
+              hintText:
+                'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default" ? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
+              hintStyle: GoogleFonts.roboto(
+              fontSize: height * 0.02,
+              fontWeight: FontWeight.w500,
+              color: ref.watch(colorF).colorsList["secondarytext"],
+              ),
+            ),
+            style: GoogleFonts.roboto(
+              fontSize: isweb ? height * 0.02 : height * 0.015,
+              fontWeight: FontWeight.w500,
+              color: ref.watch(colorF).colorsList["praimrytext"],
+            ),
+            ),
+          ),
+          if (showSuggestions && ref.watch(dataF).filter.isNotEmpty)
+          IconButton(
+            icon: Icon(Icons.clear,
+              color: ref.watch(colorF).colorsList["secondaryColor"]),
+            onPressed: () {
+            setState(() {
+              _controller.clear();
+              ref.read(dataF).flitering("");
+              suggestions = [];
+              showSuggestions = false;
+            });
+            },
+          ),
+        Divider()],
         ),
-        if (showSuggestions)
-          Container(
+      ),
+      if (showSuggestions && suggestions.isNotEmpty)
+        Stack(
+          alignment: Alignment.topCenter,
+          children: [
+          GestureDetector(
+            onTap: () {
+            setState(() {
+              showSuggestions = false;
+              suggestions = [];
+            });
+            },
+            child: Container(
+            color: Colors.transparent,
+            width: width,
+            height: height,
+            ),
+          ),
+          Positioned(
+            child: Container(
             constraints: BoxConstraints(
-              maxHeight:
-                  height * 0.3, // Limit the height of the suggestions list
+              maxHeight: height * 0.3,
             ),
             width: isweb ? width * 0.25 : width * 0.8,
             decoration: BoxDecoration(
               color: ref.watch(colorF).colorsList["secondarytext"],
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 5,
-                  offset: Offset(0, 2),
-                ),
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 5,
+                offset: Offset(0, 2),
+              ),
               ],
             ),
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    suggestions[index][data["select"]] ?? "",
-                    style: GoogleFonts.roboto(
-                      color: ref.watch(colorF).colorsList["backgroundColor"],
-                      fontSize: height * 0.02,
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _controller.text =
-                          suggestions[index][data["select"]] ?? "";
-                      ref
-                          .read(dataF)
-                          .flitering(suggestions[index][data["select"]] ?? "");
-                      suggestions = []; // Clear suggestions after selection
-                      showSuggestions = false;
-                    });
-                  },
-                );
+              return ListTile(
+                title: Text(
+                suggestions[index][data["select"]] ?? "",
+                style: GoogleFonts.roboto(
+                  color: ref.watch(colorF).colorsList["backgroundColor"],
+                  fontSize: height * 0.02,
+                ),
+                ),
+                onTap: () {
+                setState(() {
+                  _controller.text =
+                    suggestions[index][data["select"]] ?? "";
+                  ref
+                    .read(dataF)
+                    .flitering(suggestions[index][data["select"]] ?? "");
+                  suggestions = [];
+                  showSuggestions = false;
+                });
+                },
+              );
               },
             ),
+            ),
           ),
+          ]),
       ],
     );
   }

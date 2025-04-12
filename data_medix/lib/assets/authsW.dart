@@ -1,5 +1,6 @@
 import 'package:data_medix/providers/provider.dart';
 import 'package:data_medix/screens/loginScreen.dart';
+import 'package:data_medix/screens/profileInfoS.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,26 +11,9 @@ class AccountWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    double width = MediaQuery.of(context).size.width;
-    bool isWeb = width > 800;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                ref.watch(fetchF).username ?? "Guest",
-                style: GoogleFonts.roboto(
-                  fontSize: isWeb ? width * 0.013 : width * 0.03,
-                  fontWeight: FontWeight.w600,
-                  color: ref.watch(colorF).colorsList["praimrytext"],
-                ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (ref.watch(fetchF).username == null) {
+
+    Future<void> loginS () async {
+      if (ref.watch(fetchF).username == null) {
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -44,7 +28,7 @@ class AccountWidget extends ConsumerWidget {
                         ),
                         
                         content: SizedBox(
-                        width: width/4, // Adjust this value as needed
+                        width: MediaQuery.of(context).size.width/4, // Adjust this value as needed
                         child: SingleChildScrollView(
                           child: LoginScreen(
                             context2: context,
@@ -84,23 +68,83 @@ class AccountWidget extends ConsumerWidget {
                       Navigator.pop(contextLocal);
                     }
                     }
+                }
+    double width = MediaQuery.of(context).size.width;
+    bool isWeb = width > 800;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                ref.watch(fetchF).username ?? "Guest",
+                style: GoogleFonts.roboto(
+                  fontSize: isWeb ? width * 0.013 : width * 0.03,
+                  fontWeight: FontWeight.w600,
+                  color: ref.watch(colorF).colorsList["praimrytext"],
+                ),
+              ),  
+                GestureDetector(
+                onTap: () async {
+                  loginS();
                 },
                 child: Text(
                   ref.watch(fetchF).username != null ? "sign-out" : "login",
                   style: GoogleFonts.roboto(
-                    fontSize: isWeb ? width * 0.012 : width * 0.03,
-                    fontWeight: FontWeight.w400,
-                    color: ref.watch(colorF).colorsList["praimrytext"],
+                  fontSize: isWeb ? width * 0.012 : width * 0.03,
+                  fontWeight: FontWeight.w400,
+                  color: ref.watch(colorF).colorsList["praimrytext"],
                   ),
                 ),
               ),
             ],
           ),
-          Icon(
-            Icons.person_pin,
-            size: isWeb ? width * 0.05 : width * 0.13,
-            color: ref.watch(colorF).colorsList["secondaryColor"],
-          ),
+          const SizedBox(width: 5),
+            GestureDetector(
+             onTap: () {
+            if(ref.watch(fetchF).username == null){
+            loginS();
+               }else {
+              showDialog(
+              context: context,
+              builder: (context) {
+              return AlertDialog(
+              backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
+              shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: ref.watch(colorF).colorsList["secondaryColor"]!,
+                width: 2,
+              ),
+              ),
+              content: SizedBox(
+              width: width/4,
+              child: SingleChildScrollView(
+                child: ProfileInfoScreen(),
+              ),
+              ),
+              actions: [
+              TextButton(
+                onPressed: () {
+                Navigator.of(context).pop();
+                },
+                child: Text(
+                "Close",
+                style: TextStyle(
+                color: ref.watch(colorF).colorsList["praimrytext"]
+                ),
+                ),
+              ),
+              ],
+              );
+              },
+            );
+            }
+            }, 
+            child: CircleAvatar(radius: isWeb? 30:20,),
+            ),
           SizedBox(
             width: 15,
           ),

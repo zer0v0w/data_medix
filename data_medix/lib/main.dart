@@ -2,6 +2,7 @@ import 'package:data_medix/providers/provider.dart';
 import 'package:data_medix/screens/main-products.dart';
 import 'package:data_medix/assets/widget.dart' as widg;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,25 +21,34 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    // Ensure proper mobile configuration
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Use GoogleFonts for a modern, clean font style.
         textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+        useMaterial3: true,
       ),
-      home: SizedBox.expand(
-        child: Scaffold(
-          backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
-          body: Stack(children: [
-            Container(
-              color: const Color.fromARGB(
-                  16, 0, 0, 0), // Add semi-transparent black overlay
-              width: double.infinity,
-              height: double.infinity,
-            ),
-            MAINPAGE(
-              colorsList: ref.watch(colorF).colorsList,
-            )
-          ]),
+      home: SafeArea(
+        child: SizedBox.expand(
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
+            body: Stack(children: [
+              Container(
+                color: const Color.fromARGB(16, 0, 0, 0),
+                width: double.infinity,
+                height: double.infinity,
+              ),
+              MAINPAGE(
+                colorsList: ref.watch(colorF).colorsList,
+              )
+            ]),
+          ),
         ),
       ),
     );
@@ -53,6 +63,7 @@ class MAINPAGE extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isweb = MediaQuery.of(context).size.width>800;
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -62,24 +73,15 @@ class MAINPAGE extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Headtop(),
-              const SizedBox(height: 10),
-              Text(
-                "Discover",
-                style: GoogleFonts.roboto(
-                  fontSize: MediaQuery.of(context).size.height * 0.06,
-                  fontWeight: FontWeight.bold,
-                  color: colorsList["praimrytext"],
-                ),
-              ),
+              const SizedBox(height: 30),
+             
               Chosing(),
               Divider(),
               Expanded(child: CardList()),
             ],
           ),
-          Positioned(
-            left: MediaQuery.of(context).size.width * 0.39,
-            right: 0,
-            top: MediaQuery.of(context).size.height * 0.02,
+          Padding(
+            padding: isweb?  EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/4, 30 ,0,0):const EdgeInsets.fromLTRB(8.0, 40 ,0,0),
             child: widg.SearchBar(),
           ),
         ],
