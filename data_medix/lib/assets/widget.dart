@@ -96,7 +96,7 @@ class _SearchBarState extends ConsumerState<SearchBar> {
   void initState() {
     super.initState();
     filter = ref.read(dataF).filter;
-    data = ref.read(dataF).data;
+    data = ref.read(dataF).tables;
     showprov = ref.read(dataF).showprov;
   }
 
@@ -120,16 +120,19 @@ class _SearchBarState extends ConsumerState<SearchBar> {
       showSuggestions = true;
       List<Map<String, dynamic>> filteredData = await ref
           .read(dataF)
-          .getsrearch(ref.watch(dataF).data["table"]!,
-              ref.watch(dataF).data["select"]!);
+          .getsrearch(ref.watch(dataF).tables["table"]!,
+              ref.watch(dataF).tables["select"]!);
+
+              
       filteredData = filteredData
           .where((item) =>
-              item[ref.watch(dataF).data["select"]]
+              item[ref.watch(dataF).tables["select"]]
                   ?.toString()
                   .toLowerCase()
                   .contains(query.toLowerCase()) ??
               false)
           .toList();
+
       setState(() {
         //MAKE A WAY TO GET JUST WHAT U WANT FROM THE MAP
         suggestions = filteredData.take(5).toList();
@@ -146,89 +149,78 @@ class _SearchBarState extends ConsumerState<SearchBar> {
     filter = ref.watch(dataF).filter;
     showprov = ref.watch(dataF).showprov;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-      SizedBox(
-        width: isweb ? width * 0.25 : width * 0.6,
-        child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+    return Padding(
+      padding:  EdgeInsets.fromLTRB(isweb? width/10 :16 ,isweb? 0:width*0.045,0,0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-          icon: Icon(Icons.search,
-            color: ref.watch(colorF).colorsList["frontgroundColor"]),
-          onPressed: () {
-            setState(() {
-            showSuggestions = !showSuggestions;
-            if (!showSuggestions) {
-              _controller.clear();
-              ref.read(dataF).flitering("");
-              suggestions = [];
-            }
-            });
-          },
-          ),
-          if (showSuggestions)
-          Expanded(
-            child: TextField(
-            controller: _controller,
-            onChanged: (value) {
-              ref.read(dataF).flitering(value);
-              updateSuggestions(value);
+        SizedBox(
+          width: isweb ? width * 0.25 : width * 0.6,
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            IconButton(
+            icon: Icon(Icons.search,
+              color: ref.watch(colorF).colorsList["frontgroundColor"]),
+            onPressed: () {
+              setState(() {
+              showSuggestions = !showSuggestions;
+              if (!showSuggestions) {
+                _controller.clear();
+                ref.read(dataF).flitering("");
+                suggestions = [];
+              }
+              });
             },
-            decoration: InputDecoration(
-              alignLabelWithHint: true,
-              border: InputBorder.none,
-              hintText:
-                'Search in ${ref.read(dataF).data["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default" ? ref.read(dataF).country : ""}") : ref.read(dataF).data["select"]}...',
-              hintStyle: GoogleFonts.roboto(
-              fontSize: height * 0.02,
-              fontWeight: FontWeight.w500,
-              color: ref.watch(colorF).colorsList["secondarytext"],
+            ),
+            if (showSuggestions)
+            Expanded(
+              child: TextField(
+              controller: _controller,
+              onChanged: (value) {
+                ref.read(dataF).flitering(value);
+                updateSuggestions(value);
+              },
+              decoration: InputDecoration(
+                alignLabelWithHint: true,
+                border: InputBorder.none,
+                hintText:
+                  'Search in ${ref.read(dataF).tables["table"] == "Main Brand INDEX" ? (ref.read(dataF).showprov ? 'dsiply distributor' : "Brand Name ${ref.read(dataF).country != "default" ? ref.read(dataF).country : ""}") : ref.read(dataF).tables["select"]}...',
+                hintStyle: GoogleFonts.roboto(
+                fontSize: height * 0.02,
+                fontWeight: FontWeight.w500,
+                color: ref.watch(colorF).colorsList["secondarytext"],
+                ),
+              ),
+              style: GoogleFonts.roboto(
+                fontSize: isweb ? height * 0.02 : height * 0.015,
+                fontWeight: FontWeight.w500,
+                color: ref.watch(colorF).colorsList["praimrytext"],
+              ),
               ),
             ),
-            style: GoogleFonts.roboto(
-              fontSize: isweb ? height * 0.02 : height * 0.015,
-              fontWeight: FontWeight.w500,
-              color: ref.watch(colorF).colorsList["praimrytext"],
+            if (showSuggestions && ref.watch(dataF).filter.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.clear,
+                color: ref.watch(colorF).colorsList["secondaryColor"]),
+              onPressed: () {
+              setState(() {
+                _controller.clear();
+                ref.read(dataF).flitering("");
+                suggestions = [];
+                showSuggestions = false;
+              });
+              },
             ),
-            ),
+      ],
           ),
-          if (showSuggestions && ref.watch(dataF).filter.isNotEmpty)
-          IconButton(
-            icon: Icon(Icons.clear,
-              color: ref.watch(colorF).colorsList["secondaryColor"]),
-            onPressed: () {
-            setState(() {
-              _controller.clear();
-              ref.read(dataF).flitering("");
-              suggestions = [];
-              showSuggestions = false;
-            });
-            },
-          ),
-        Divider()],
         ),
-      ),
-      if (showSuggestions && suggestions.isNotEmpty)
-        Stack(
-          alignment: Alignment.topCenter,
-          children: [
-          GestureDetector(
-            onTap: () {
-            setState(() {
-              showSuggestions = false;
-              suggestions = [];
-            });
-            },
-            child: Container(
-            color: Colors.transparent,
-            width: width,
-            height: height,
-            ),
-          ),
-          Positioned(
-            child: Container(
+        if (showSuggestions && suggestions.isNotEmpty)
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+            
+            Container(
             constraints: BoxConstraints(
               maxHeight: height * 0.3,
             ),
@@ -248,6 +240,7 @@ class _SearchBarState extends ConsumerState<SearchBar> {
               shrinkWrap: true,
               itemCount: suggestions.length,
               itemBuilder: (context, index) {
+                data = ref.watch(dataF).tables;
               return ListTile(
                 title: Text(
                 suggestions[index][data["select"]] ?? "",
@@ -271,9 +264,9 @@ class _SearchBarState extends ConsumerState<SearchBar> {
               },
             ),
             ),
-          ),
-          ]),
-      ],
+            ]),
+        ],
+      ),
     );
   }
 }

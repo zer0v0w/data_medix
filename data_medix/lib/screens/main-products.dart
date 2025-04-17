@@ -57,62 +57,61 @@ class _HeadtopState extends ConsumerState<Headtop>
 
     return Padding(
       padding: EdgeInsets.symmetric(
-      horizontal: isWeb ? width * 0.02 : width * 0.05,
-      vertical: height * 0.01
-      ),
+          horizontal: isWeb ? width * 0.02 : width * 0.05,
+          vertical: height * 0.01),
       child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Logo(),
-          SizedBox(width: isWeb ? width * 0.02 : width * 0.03),
-          GestureDetector(
-          onTapDown: (_) {
-            _scaleController.reverse();
-            HapticFeedback.selectionClick();
-          },
-          onTapUp: (_) {
-            _scaleController.forward();
-            ref.read(colorF).toggleDarkMode();
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(
-            horizontal: isWeb ? width * 0.01 : width * 0.03,
-            vertical: height * 0.008
-            ),
-            decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: colorsList["backgroundColor"],
-            border: Border.all(color: colorsList["praimrytext"]!.withOpacity(0.2))
-            ),
-            child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Row(
-              children: [
-              Icon(
-                darkMode ? Icons.light_mode : Icons.dark_mode,
-                color: colorsList["praimrytext"],
-                size: isWeb ? height * 0.02 : height * 0.018,
-              ),
-              SizedBox(width: isWeb ? width * 0.005 : width * 0.02),
-              if (isWeb) Text(
-                darkMode ? "Light Mode" : "Dark Mode",
-                style: GoogleFonts.roboto(
-                color: colorsList["praimrytext"],
-                fontSize: height * 0.018,
-                fontWeight: FontWeight.w500,
+          Row(
+            children: [
+              Logo(),
+              SizedBox(width: isWeb ? width * 0.02 : width * 0.03),
+              GestureDetector(
+                onTapDown: (_) {
+                  _scaleController.reverse();
+                  HapticFeedback.selectionClick();
+                },
+                onTapUp: (_) {
+                  _scaleController.forward();
+                  ref.read(colorF).toggleDarkMode();
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isWeb ? width * 0.01 : width * 0.03,
+                      vertical: height * 0.008),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: colorsList["backgroundColor"],
+                      border: Border.all(
+                          color: colorsList["praimrytext"]!.withOpacity(0.2))),
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Row(
+                      children: [
+                        Icon(
+                          darkMode ? Icons.light_mode : Icons.dark_mode,
+                          color: colorsList["praimrytext"],
+                          size: isWeb ? height * 0.02 : height * 0.018,
+                        ),
+                        SizedBox(width: isWeb ? width * 0.005 : width * 0.02),
+                        if (isWeb)
+                          Text(
+                            darkMode ? "Light Mode" : "Dark Mode",
+                            style: GoogleFonts.roboto(
+                              color: colorsList["praimrytext"],
+                              fontSize: height * 0.018,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              ],
-            ),
-            ),
+            ],
           ),
-          ),
+          AccountWidget(),
         ],
-        ),
-        AccountWidget(),
-      ],
       ),
     );
   }
@@ -138,7 +137,7 @@ class _ChosingState extends ConsumerState<Chosing> {
   void initState() {
     super.initState();
     selected = ref.read(dataF).selected;
-    data = ref.read(dataF).data;
+    data = ref.read(dataF).tables;
     country = ref.read(dataF).country;
     arabicCountries = ref.read(dataF).arabicCountries;
     showprov = ref.read(dataF).showprov;
@@ -160,7 +159,10 @@ class _ChosingState extends ConsumerState<Chosing> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: isweb? MediaQuery.of(context).size.width * 0.025:MediaQuery.of(context).size.width * 0.035),
+            SizedBox(
+                width: isweb
+                    ? MediaQuery.of(context).size.width * 0.025
+                    : MediaQuery.of(context).size.width * 0.035),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -258,7 +260,7 @@ class _ChosingState extends ConsumerState<Chosing> {
           ],
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-        if (ref.watch(dataF).data["table"] == "Main Brand INDEX")
+        if (ref.watch(dataF).tables["table"] == "Main Brand INDEX")
           Padding(
             padding: EdgeInsets.only(
                 left: (MediaQuery.of(context).size.longestSide / 50)),
@@ -324,32 +326,34 @@ class _ChosingState extends ConsumerState<Chosing> {
                   if (country != "default")
                     GestureDetector(
                       onTap: () {
-                      ref.read(dataF).toggleProv(false);
-                      print(ref.watch(dataF).showprov);
-                      HapticFeedback.mediumImpact();
+                        ref.read(dataF).toggleProv(false);
+                        print(ref.watch(dataF).showprov);
+                        HapticFeedback.mediumImpact();
                       },
                       child: Container(
-                      height: isweb ? height * 0.05 : height * 0.04,
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: showprov
-                          ? colorsList["praimryColor"]
-                          : colorsList["secondarytext"],
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            "Search by Distributors", 
-                            style: GoogleFonts.roboto(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400,
-                            fontSize: isweb ? height * 0.015 : height * 0.015,
+                        height: isweb ? height * 0.05 : height * 0.04,
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: showprov
+                              ? colorsList["praimryColor"]
+                              : colorsList["secondarytext"],
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              "Search by Distributors",
+                              style: GoogleFonts.roboto(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
+                                fontSize:
+                                    isweb ? height * 0.015 : height * 0.015,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       ),
                     ),
                   if (country != "default")
@@ -401,52 +405,58 @@ class _CardListState extends ConsumerState<CardList> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    data = ref.watch(dataF).data;
+    data = ref.watch(dataF).tables;
     colorsList = ref.watch(colorF).colorsList;
     darkMode = ref.watch(colorF).darkMode;
     showprov = ref.watch(dataF).showprov;
     country = ref.watch(dataF).country;
 
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ref.watch(dataF).getdata(data["table"]!, data["select"]!),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return LodingCards(
-            colorsList: colorsList,
-          );
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Expanded(
-              child: Padding(
-                  padding: EdgeInsets.all(width * 0.02),
-                  child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: width > 1200 ? 5 : 2,
-                        mainAxisExtent: height * 0.25,
-                        crossAxisSpacing: 15.0,
-                        mainAxisSpacing: 15.0,
-                      ),
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return NodataCard(
-                            colorsList: colorsList, darkMode: darkMode);
-                      })));
-        }
+    return Column(
+      children: [
+        Divider(),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: ref.watch(dataF).getdata(data["table"]!, data["select"]!),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return LodingCards(
+                colorsList: colorsList,
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Expanded(
+                  child: Padding(
+                      padding: EdgeInsets.all(width * 0.02),
+                      child: GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: width > 1200 ? 5 : 2,
+                            mainAxisExtent: height * 0.25,
+                            crossAxisSpacing: 15.0,
+                            mainAxisSpacing: 15.0,
+                          ),
+                          itemCount: 10,
+                          itemBuilder: (context, index) {
+                            return NodataCard(
+                                colorsList: colorsList, darkMode: darkMode);
+                          })));
+            }
 
-        List<Map<String, dynamic>> dataList = snapshot.data!;
-        return Card(
-          colorsList: colorsList,
-          showprov: showprov,
-          data: data,
-          selected: selected,
-          country: country,
-          dataList: dataList,
-          darkMode: darkMode,
-        );
-      },
+            List<Map<String, dynamic>> dataList = snapshot.data!;
+            return Card(
+              colorsList: colorsList,
+              showprov: showprov,
+              data: data,
+              selected: selected,
+              country: country,
+              dataList: dataList,
+              darkMode: darkMode,
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -530,6 +540,7 @@ class _CardState extends ConsumerState<Card>
   @override
   void initState() {
     super.initState();
+   
 
     // Animation controller for fade in effect.
     _controller = AnimationController(
@@ -553,6 +564,21 @@ class _CardState extends ConsumerState<Card>
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool isweb = width > 1200;
+    List dataPrice = ref.watch(dataF).priceData;
+
+     if (widget.country != "default" && widget.selected == 1) {
+      ref.read(dataF).getPrices().then( (value) {
+        setState(() {
+          dataPrice = value;
+        });
+      });
+      
+    }
+    else{
+   
+    }
+    
+    
 
     return Expanded(
       child: FadeTransition(
@@ -600,29 +626,26 @@ class _CardState extends ConsumerState<Card>
                           FadingText(
                             widget.country == "default"
                                 ? widget.dataList[index]
+                                            [(widget.data["select"])]
+                                        .contains('#')
+                                    ? md.Document()
+                                        .parseLines(widget.dataList[index]
                                                 [(widget.data["select"])]
-                                            .contains('#')
-                                        ? md.Document()
-                                            .parseLines(widget.dataList[index]
-                                                    [(widget.data["select"])]
-                                                .split('\n'))
-                                            .map((e) => e.textContent)
-                                            .join('\n')
-                                        : widget.dataList[index]
-                                                [(widget.data["select"])]
-                                            .toString()
-                                            : switch (widget.data["table"]) {
-                                                "Main Drug INFO" =>
-                                                  widget.dataList[index]
-                                                          ['Product class'] ??
-                                                      "w",
-                                                "Main Brand INDEX" =>
-                                                  widget.dataList[index]
-                                                          ["Brand Name"] ??
-                                                      "s",
-                                                _ => "s",
-                                              }
-                                ,
+                                            .split('\n'))
+                                        .map((e) => e.textContent)
+                                        .join('\n')
+                                    : widget.dataList[index]
+                                            [(widget.data["select"])]
+                                        .toString()
+                                : switch (widget.data["table"]) {
+                                    "Main Drug INFO" => widget.dataList[index]
+                                            ['Product class'] ??
+                                        "w",
+                                    "Main Brand INDEX" => widget.dataList[index]
+                                            ["Brand Name"] ??
+                                        "s",
+                                    _ => "s",
+                                  },
                             style: GoogleFonts.roboto(
                               fontSize: isweb ? height * 0.024 : height * 0.02,
                               color: widget.colorsList["praimrytext"],
@@ -660,13 +683,27 @@ class _CardState extends ConsumerState<Card>
                             ),
                           ),
                           Spacer(flex: 10),
+                          Text(
+                            widget.country != "default"
+                                    &&dataPrice.isNotEmpty? "${dataPrice[index]["Price"].toString()}\$":"",
+                                
+                            style: GoogleFonts.roboto(
+                              fontSize: isweb ? height * 0.022 : height * 0.02,
+                              color: widget.colorsList["secondarytext"],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                           Row(
                             children: [
                               Text(
-                                widget.dataList[index]['Rx/OTC'] ?? "",
+                                widget.country != "default"
+                                    ? dataPrice.isNotEmpty
+                                        ? "${dataPrice[index]["Pack Size"]}"
+                                        : ""
+                                    : widget.dataList[index]['Rx/OTC'] ?? "",
                                 style: GoogleFonts.roboto(
                                   fontSize:
-                                      isweb ? height * 0.022 : height * 0.02,
+                                      isweb ? height * 0.020 : height * 0.018,
                                   color: widget.colorsList["secondarytext"],
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -674,12 +711,12 @@ class _CardState extends ConsumerState<Card>
                               Spacer(),
                               TextButton(
                                 onPressed: () {
-                                  ref.read(dataF).selectedData =
-                                      widget.dataList[index];
+                                  ref.read(dataF).drugCode =
+                                      widget.dataList[index]['Code'];
 
                                   Navigator.of(context).push(
                                     CupertinoPageRoute(
-                                        builder: (context) => DetailScreen()),
+                                        builder: (context) => InfoPage()),
                                   );
                                   HapticFeedback.selectionClick();
                                 },

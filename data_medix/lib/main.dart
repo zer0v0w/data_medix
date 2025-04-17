@@ -34,19 +34,21 @@ class MainApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       home: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
-          body: Stack(children: [
-            Container(
-              color: const Color.fromARGB(16, 0, 0, 0),
-              width: double.infinity,
-              height: double.infinity,
-            ),
-            MAINPAGE(
-              colorsList: ref.watch(colorF).colorsList,
-            )
-          ]),
+        child: SizedBox.expand(
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
+            body: Stack(children: [
+              Container(
+                color: const Color.fromARGB(16, 0, 0, 0),
+                width: double.infinity,
+                height: double.infinity,
+              ),
+              MAINPAGE(
+                colorsList: ref.watch(colorF).colorsList,
+              )
+            ]),
+          ),
         ),
       ),
     );
@@ -74,8 +76,8 @@ class MAINPAGE extends StatelessWidget {
               const SizedBox(height: 30),
              
               Chosing(),
-              Divider(),
-              Expanded(child: CardList()),
+              
+              Expanded(child: CardList()), 
             ],
           ),
           Padding(

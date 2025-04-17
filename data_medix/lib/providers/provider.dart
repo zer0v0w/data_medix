@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 final dataF = ChangeNotifierProvider<DataMode>((ref) {
-  return DataMode(showprov: false , filter: "", data: {"table": "Main Drug INFO","select":"Scientific Name"}, selected: 0, arabicCountries: ["default","Palestine"], country: "default") ;
+  return DataMode(showprov: false , filter: "", tables: {"table": "Main Drug INFO","select":"Scientific Name"}, selected: 0, arabicCountries: ["default","Palestine"], country: "default") ;
 });
 
 

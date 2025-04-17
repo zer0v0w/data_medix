@@ -6,18 +6,21 @@ final supabase = Supabase.instance.client;
 class DataMode extends ChangeNotifier {
   bool showprov;
   String filter;
-  Map<String, String> data;
+  Map<String, String> tables;
   int selected;
   String country;
   List<String> arabicCountries;
-  dynamic selectedData = "";
+  //dynamic selectedData = ""; needs rework
   List columnL = [];
+  String? drugCode;
   String sele = "Drug Class";
+  Map<String, dynamic>? drugData;
+  List<Map<String, dynamic>> priceData=[];
 
   DataMode(
       {required this.showprov,
       required this.filter,
-      required this.data,
+      required this.tables,
       required this.selected,
       required this.arabicCountries,
       required this.country});
@@ -31,18 +34,50 @@ class DataMode extends ChangeNotifier {
         .select()
         .filter(select, "ilike", '%$filter%')
         .limit(20);
-    return data;
-  }
-  Future<List<Map<String, dynamic>>> getsrearch(
-      String table, String select) async {
-    List<Map<String, dynamic>> data = await supabase
-        .from(country == "default" || selected != 1
-            ? table
-            : "$country Drug Info")
+        
+         if(country != "default" && selected == 1){
+          List<Map<String, dynamic>> data2 = await supabase
+        .from(
+            "$country Drug Prices")
         .select()
         .filter(select, "ilike", '%$filter%')
         .limit(20);
+
+        data.addAll(data2);
+        }
     return data;
+  }
+
+  Future<List<Map<String, dynamic>>> getsrearch(
+      String table, String select) async {
+    List<Map<String, dynamic>> data1 = await supabase
+        .from(selected == 0
+            ? "Main Drug INFO"
+            : selected == 1
+                ? (country == "default"
+                    ? "Main Brand INDEX"
+                    : "$country Drug Info")
+                : selected == 2
+                    ? "Main Drug INFO"
+                    : "")
+        .select()
+        .filter(select, "ilike", '%$filter%')
+        .limit(20);
+
+        if(country != "default" && selected == 1){
+          List<Map<String, dynamic>> data2 = await supabase
+        .from(
+            "$country Drug Prices")
+        .select()
+        .filter(select, "ilike", '%$filter%')
+        .limit(20);
+
+        data1.addAll(data2);
+        }
+
+    notifyListeners();
+
+    return data1;
   }
 
   void flitering(String s) {
@@ -74,13 +109,13 @@ class DataMode extends ChangeNotifier {
     selected = s;
     switch (selected) {
       case 0:
-        data = {"table": "Main Drug INFO", "select": "Scientific Name"};
+        tables = {"table": "Main Drug INFO", "select": "Scientific Name"};
         break;
       case 1:
-        data = {"table": "Main Brand INDEX", "select": "Brand Name"};
+        tables = {"table": "Main Brand INDEX", "select": "Brand Name"};
         break; //brand
       case 2:
-        data = {"table": "Main Drug INFO", "select": "Drug Class"};
+        tables = {"table": "Main Drug INFO", "select": "Drug Class"};
         break; //class drug
       default:
     }
@@ -90,13 +125,13 @@ class DataMode extends ChangeNotifier {
   }
 
 //
-  Future<List> getColumnNames(String tableName) async {
-    final supabase = Supabase.instance.client;
-
+  Future<void> getColumnNames() async {
     try {
       final response = await supabase
-          .from(country != "default" ? "$country Drug Info" : tableName)
+          .from(country != "default" ? "$country Drug Info" : "Main Drug INFO")
           .select()
+          .filter(
+              country != "default" ? "$country Code" : 'Code', "eq", drugCode)
           .limit(1);
 
       if (response.isNotEmpty) {
@@ -108,23 +143,44 @@ class DataMode extends ChangeNotifier {
         newColumnL.remove("id");
         newColumnL.remove("Ps Code");
         newColumnL.remove("Rx/OTC");
-        newColumnL.remove(country != "default" ? "Brand Name":"Drug Class");
+        newColumnL.remove(country != "default" ? "Brand Name" : "Drug Class");
 
         newColumnL.sort();
-        newColumnL.insert(0, country != "default" ? "Brand Name":"Drug Class");
+        newColumnL.insert(
+            0, country != "default" ? "Brand Name" : "Drug Class");
 
         // Only notify if the column list has changed
         if (!listEquals(columnL, newColumnL)) {
           columnL = newColumnL;
           notifyListeners();
         }
-
-        return columnL;
+        drugData = response.first;
+    
+        notifyListeners();
       }
     } catch (error) {
       //
     }
 
-    return [];
+    
   }
+  Future<List<Map<String, dynamic>>> getPrices() async {
+      try {
+          List<Map<String, dynamic>> response = await supabase
+            .from(
+                 "$country Drug Prices")
+            .select()
+          
+            .limit(20);
+
+            priceData = response;
+            return response;
+
+      } catch (error) {
+        //
+        return [];
+      }
+      
+
+    }
 }
