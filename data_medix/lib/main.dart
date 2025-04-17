@@ -2,6 +2,7 @@ import 'package:data_medix/providers/provider.dart';
 import 'package:data_medix/screens/main-products.dart';
 import 'package:data_medix/assets/widget.dart' as widg;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,66 +15,77 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MainApp()));
 }
 
-
 // main app viwer
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context ,ref) {
+  Widget build(BuildContext context, ref) {
+    // Ensure proper mobile configuration
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Use GoogleFonts for a modern, clean font style.
         textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+        useMaterial3: true,
       ),
-      home: Scaffold(
-        backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
-        body: MAINPAGE(colorsList: ref.watch(colorF).colorsList,),
+      home: SafeArea(
+        child: SizedBox.expand(
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: ref.watch(colorF).colorsList["backgroundColor"],
+            body: Stack(children: [
+              Container(
+                color: const Color.fromARGB(16, 0, 0, 0),
+                width: double.infinity,
+                height: double.infinity,
+              ),
+              MAINPAGE(
+                colorsList: ref.watch(colorF).colorsList,
+              )
+            ]),
+          ),
+        ),
       ),
     );
   }
 }
 
-
 //page viwer
 class MAINPAGE extends StatelessWidget {
-     final Map <String,Color> colorsList;
+  final Map<String, Color> colorsList;
 
   const MAINPAGE({super.key, required this.colorsList});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Headtop(),
-                SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    "Discover    ",
-                    style: GoogleFonts.roboto(
-                      fontSize: MediaQuery.of(context).size.height * 0.06,
-                      fontWeight: FontWeight.bold,
-                      color: colorsList["praimrytext"],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Chosing( ),
-                SizedBox(height: 10),
-                Expanded(child: CardList()),
-              ],
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child:widg.SearchBar() ,
-              ),
-            ),
-          ],
-        );
+    bool isweb = MediaQuery.of(context).size.width>800;
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Headtop(),
+              const SizedBox(height: 30),
+             
+              Chosing(),
+              
+              Expanded(child: CardList()), 
+            ],
+          ),
+          Padding(
+            padding: isweb?  EdgeInsets.fromLTRB(MediaQuery.of(context).size.width/4, 30 ,0,0):const EdgeInsets.fromLTRB(8.0, 40 ,0,0),
+            child: widg.SearchBar(),
+          ),
+        ],
+      ),
+    );
   }
 }
