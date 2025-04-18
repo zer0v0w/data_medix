@@ -199,7 +199,6 @@ class _ChosingState extends ConsumerState<Chosing> {
                 setState(() {
                   selected = 0;
                 });
-                ref.read(dataF).selected = selected;
                 ref.read(dataF).change(selected);
               },
               child: Column(
@@ -230,7 +229,6 @@ class _ChosingState extends ConsumerState<Chosing> {
               onTap: () {
                 setState(() {
                   selected = 2;
-                  ref.read(dataF).selected = selected;
                   ref.read(dataF).change(selected);
                 });
               },
@@ -384,6 +382,7 @@ class CardList extends ConsumerStatefulWidget {
 }
 
 class _CardListState extends ConsumerState<CardList> {
+
   int selected = 0;
   Map<String, String> data = {"": ""};
   String country = "";
@@ -392,6 +391,8 @@ class _CardListState extends ConsumerState<CardList> {
   bool showprov = false;
   late Map<String, Color> colorsList;
   late bool darkMode;
+  List<Map<String, dynamic>> dataPrices = [];
+  
   @override
   void initState() {
     super.initState();
@@ -399,10 +400,21 @@ class _CardListState extends ConsumerState<CardList> {
     country = ref.read(dataF).country;
     arabicCountries = ref.read(dataF).arabicCountries;
     showprov = ref.read(dataF).showprov;
+    dataPrices = ref.read(dataF).priceData;
+
   }
 
   @override
   Widget build(BuildContext context) {
+    if (ref.watch(dataF).selected == 1) {
+      ref.read(dataF).getPrices().then( (value) {
+        dataPrices = value;
+      });
+      
+    }
+    else{
+
+    }
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     data = ref.watch(dataF).tables;
@@ -410,6 +422,9 @@ class _CardListState extends ConsumerState<CardList> {
     darkMode = ref.watch(colorF).darkMode;
     showprov = ref.watch(dataF).showprov;
     country = ref.watch(dataF).country;
+        dataPrices = ref.watch(dataF).priceData;
+
+    
 
     return Column(
       children: [
@@ -453,6 +468,7 @@ class _CardListState extends ConsumerState<CardList> {
               country: country,
               dataList: dataList,
               darkMode: darkMode,
+              priceData: dataPrices ,
             );
           },
         ),
@@ -511,7 +527,7 @@ class LodingCards extends StatelessWidget {
 }
 
 class Card extends ConsumerStatefulWidget {
-  const Card(
+  const Card( 
       {super.key,
       required this.showprov,
       required this.data,
@@ -519,13 +535,15 @@ class Card extends ConsumerStatefulWidget {
       required this.country,
       required this.dataList,
       required this.colorsList,
-      required this.darkMode});
+      required this.darkMode,
+      required this.priceData});
   final List<Map<String, dynamic>> dataList;
   final int selected;
   final Map<String, String> data;
   final String country;
   final Map<String, Color> colorsList;
   final bool darkMode;
+  final List<Map<String, dynamic>> priceData;
 
   final bool showprov;
   @override
@@ -566,17 +584,17 @@ class _CardState extends ConsumerState<Card>
     bool isweb = width > 1200;
     List dataPrice = ref.watch(dataF).priceData;
 
-     if (widget.country != "default" && widget.selected == 1) {
+     if (widget.country != "default"  && ref.watch(dataF).selected == 1) {
       ref.read(dataF).getPrices().then( (value) {
-        setState(() {
-          dataPrice = value;
-        });
+        dataPrice = value;
       });
       
     }
     else{
-   
+
     }
+
+  
     
     
 
@@ -699,7 +717,7 @@ class _CardState extends ConsumerState<Card>
                                 widget.country != "default"
                                     ? dataPrice.isNotEmpty
                                         ? "${dataPrice[index]["Pack Size"]}"
-                                        : ""
+                                        : "no price"
                                     : widget.dataList[index]['Rx/OTC'] ?? "",
                                 style: GoogleFonts.roboto(
                                   fontSize:
@@ -713,6 +731,7 @@ class _CardState extends ConsumerState<Card>
                                 onPressed: () {
                                   ref.read(dataF).drugCode =
                                       widget.dataList[index]['Code'];
+                                       ref.read(dataF).getColumnNames();
 
                                   Navigator.of(context).push(
                                     CupertinoPageRoute(

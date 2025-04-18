@@ -161,6 +161,8 @@ class DataMode extends ChangeNotifier {
     } catch (error) {
       //
     }
+            notifyListeners();
+
 
     
   }
@@ -171,15 +173,19 @@ class DataMode extends ChangeNotifier {
                  "$country Drug Prices")
             .select()
           
-            .limit(20);
+            .limit(40);
 
             priceData = response;
+            
+            
             return response;
+           
 
       } catch (error) {
         //
         return [];
       }
+      
       
 
     }
